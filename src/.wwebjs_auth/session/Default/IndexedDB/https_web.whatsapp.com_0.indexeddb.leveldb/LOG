@@ -1,0 +1,37 @@
+2022/08/31-18:26:27.857 2844 Reusing MANIFEST C:\Users\win-10\Desktop\code\free-lama-whatsapp-server\src\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/08/31-18:26:27.858 2844 Recovering log #764
+2022/08/31-18:26:27.976 2844 Reusing old log C:\Users\win-10\Desktop\code\free-lama-whatsapp-server\src\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000764.log 
+2022/08/31-19:28:01.306 292c Level-0 table #782: started
+2022/08/31-19:28:01.398 292c Level-0 table #782: 1216584 bytes OK
+2022/08/31-19:28:01.401 292c Delete type=0 #764
+2022/08/31-19:34:32.880 292c Compacting 1@0 + 0@1 files
+2022/08/31-19:34:32.952 292c Generated table #783@0: 17324 keys, 420267 bytes
+2022/08/31-19:34:32.957 292c Generated table #784@0: 176 keys, 7839 bytes
+2022/08/31-19:34:32.957 292c Compacted 1@0 + 0@1 files => 428106 bytes
+2022/08/31-19:34:32.958 292c compacted to: files[ 0 2 12 0 0 0 0 ]
+2022/08/31-19:34:32.959 292c Delete type=2 #782
+2022/08/31-19:41:21.365 4bc4 Compacting 1@1 + 10@2 files
+2022/08/31-19:41:21.508 4bc4 Generated table #785@1: 30547 keys, 2263580 bytes
+2022/08/31-19:41:21.633 4bc4 Generated table #786@1: 25234 keys, 2277471 bytes
+2022/08/31-19:41:21.742 4bc4 Generated table #787@1: 24961 keys, 2278254 bytes
+2022/08/31-19:41:21.850 4bc4 Generated table #788@1: 24621 keys, 2279183 bytes
+2022/08/31-19:41:21.963 4bc4 Generated table #789@1: 24674 keys, 2276993 bytes
+2022/08/31-19:41:22.037 4bc4 Generated table #790@1: 24830 keys, 2273674 bytes
+2022/08/31-19:41:22.163 4bc4 Generated table #791@1: 24672 keys, 2280438 bytes
+2022/08/31-19:41:22.260 4bc4 Generated table #792@1: 24832 keys, 2281203 bytes
+2022/08/31-19:41:22.376 4bc4 Generated table #793@1: 97966 keys, 2256758 bytes
+2022/08/31-19:41:22.506 4bc4 Generated table #794@1: 99552 keys, 2269366 bytes
+2022/08/31-19:41:22.521 4bc4 Generated table #795@1: 3990 keys, 228042 bytes
+2022/08/31-19:41:22.521 4bc4 Compacted 1@1 + 10@2 files => 22964962 bytes
+2022/08/31-19:41:22.522 4bc4 compacted to: files[ 0 1 13 0 0 0 0 ]
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #768
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #769
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #770
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #771
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #772
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #773
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #774
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #775
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #776
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #777
+2022/08/31-19:41:22.523 4bc4 Delete type=2 #783
