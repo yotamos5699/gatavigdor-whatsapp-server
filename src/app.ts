@@ -1,9 +1,9 @@
 import express from "express";
 import qrcode from "qrcode-terminal";
 import cors from "cors";
-import { Client, LocalAuth } from "whatsapp-web.js";
+import { Client, LocalAuth } from "whatsapp-web.js"; //@ts-ignore
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000; //process.env.PORT || 5000;
 
 /* 
 ** Aliases
@@ -31,7 +31,7 @@ let current status = 'close'
 const client = new Client({ authStrategy: new LocalAuth() });
 
 app.set("trust proxy", 1); // trust first proxy
-client.on("qr", (qr) => {
+client.on("qr", (qr: any) => {
   qrcode.generate(qr, { small: true });
 });
 
@@ -56,40 +56,40 @@ app.post("/api/sendMsgs", async (req, res) => {
   let { numbers, msg } = await req.body;
   let actionLog: any[] = [];
   let record: any;
-  try {
-    numbers.forEach((number: string, index: Number) => {
-      let log = ``;
 
-      client
-        .isRegisteredUser(`${number}@c.us`)
-        .then(function (isRegistered) {
-          if (isRegistered) {
-            client.sendMessage(`${number}@c.us`, msg);
-            record = { number: number, status: "ok", row: index, msg: msg };
-          } else {
-            log = `***** ${number} is not registerd ******`;
-            record = {
-              number: number,
-              status: "registretion error",
-              row: index,
-              msg: log,
-            };
-          }
-        })
-        .catch((err) => {
+  for (let i = 0; i <= numbers.length - 1; i++) {
+    let log = ``;
+
+    await client
+      .isRegisteredUser(`${numbers[i]}@c.us`)
+      .then(function (isRegistered: any) {
+        if (isRegistered) {
+          let m = `${msg} ${i}`;
+          console.log(m);
+          client.sendMessage(`${numbers[i]}@c.us`, m);
+          record = { number: numbers[i], status: "ok", row: i, msg: msg };
+        } else {
+          log = `***** ${numbers[i]} is not registerd ******`;
           record = {
-            number: number,
-            status: "catch error",
-            row: index,
-            msg: err,
+            number: numbers[i],
+            status: "registretion error",
+            row: i,
+            msg: log,
           };
-        });
-      actionLog.push(record);
-    });
-    res.send(JSON.stringify(actionLog));
-  } catch (e) {
-    console.log(e);
+        }
+      })
+      .catch((err: any) => {
+        record = {
+          number: numbers[i],
+          status: "catch error",
+          row: i,
+          msg: err,
+        };
+      });
+    actionLog.push(record);
   }
+  console.log(actionLog);
+  res.send(JSON.stringify(actionLog));
 });
 
 client.on("message", async (message: any) => {
@@ -102,6 +102,6 @@ client.on("message", async (message: any) => {
 client
   .initialize()
   .then(() => console.log("client initialize ....\n to init in initializ"))
-  .catch((err) => console.log(err));
+  .catch((err: any) => console.log(err));
 
 module.exports = client;

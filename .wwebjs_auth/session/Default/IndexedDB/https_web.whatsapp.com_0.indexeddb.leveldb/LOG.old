@@ -1,3 +1,14 @@
-2022/11/01-18:46:52.479 ce8 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2022/11/01-18:46:52.479 ce8 Recovering log #25
-2022/11/01-18:46:52.563 ce8 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000025.log 
+2022/11/01-21:24:00.163 2160 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/11/01-21:24:00.164 2160 Recovering log #51
+2022/11/01-21:24:00.293 2160 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000051.log 
+2022/11/01-21:24:00.293 2160 Delete type=2 #48
+2022/11/01-21:24:00.293 2160 Delete type=2 #49
+2022/11/01-21:24:00.293 2160 Delete type=2 #52
+2022/11/01-21:24:20.045 2160 Level-0 table #57: started
+2022/11/01-21:24:20.102 2160 Level-0 table #57: 1099912 bytes OK
+2022/11/01-21:24:20.104 2160 Delete type=0 #51
+2022/11/01-21:24:20.192 24f0 Compacting 1@1 + 2@2 files
+2022/11/01-21:24:20.330 24f0 Generated table #58@1: 42805 keys, 2266697 bytes
+2022/11/01-21:24:20.425 24f0 Generated table #59@1: 21552 keys, 936928 bytes
+2022/11/01-21:24:20.425 24f0 Compacted 1@1 + 2@2 files => 3203625 bytes
+2022/11/01-21:24:20.426 24f0 compacted to: files[ 0 0 2 0 0 0 0 ]
