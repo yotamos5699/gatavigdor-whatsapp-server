@@ -3,7 +3,7 @@ import qrcode from "qrcode-terminal";
 import cors from "cors";
 import { Client, LocalAuth } from "whatsapp-web.js"; //@ts-ignore
 const app = express();
-const PORT = 5000; //process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 /* 
 ** Aliases
