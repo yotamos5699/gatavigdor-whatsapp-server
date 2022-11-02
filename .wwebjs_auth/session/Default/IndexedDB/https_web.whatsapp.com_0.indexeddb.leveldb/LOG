@@ -1,11 +1,17 @@
-2022/11/02-19:52:19.865 590 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2022/11/02-19:52:19.875 590 Recovering log #66
-2022/11/02-19:52:19.987 590 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000066.log 
-2022/11/02-19:52:35.255 203c Level-0 table #72: started
-2022/11/02-19:52:35.313 203c Level-0 table #72: 1221935 bytes OK
-2022/11/02-19:52:35.315 203c Delete type=0 #66
-2022/11/02-19:52:35.340 203c Compacting 1@1 + 2@2 files
-2022/11/02-19:52:35.449 203c Generated table #73@1: 31182 keys, 2266310 bytes
-2022/11/02-19:52:35.554 203c Generated table #74@1: 45137 keys, 1618008 bytes
-2022/11/02-19:52:35.554 203c Compacted 1@1 + 2@2 files => 3884318 bytes
-2022/11/02-19:52:35.555 203c compacted to: files[ 0 0 2 0 0 0 0 ]
+2022/11/02-20:40:48.149 217c Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/11/02-20:40:48.150 217c Recovering log #71
+2022/11/02-20:40:48.264 217c Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000071.log 
+2022/11/02-20:40:48.264 217c Delete type=2 #68
+2022/11/02-20:40:48.264 217c Delete type=2 #69
+2022/11/02-20:40:48.264 217c Delete type=2 #72
+2022/11/02-20:40:59.919 217c Level-0 table #77: started
+2022/11/02-20:40:59.959 217c Level-0 table #77: 1022443 bytes OK
+2022/11/02-20:40:59.961 217c Delete type=0 #71
+2022/11/02-20:40:59.966 217c Compacting 1@1 + 2@2 files
+2022/11/02-20:41:00.070 217c Generated table #78@1: 30916 keys, 2266870 bytes
+2022/11/02-20:41:00.161 217c Generated table #79@1: 47872 keys, 1788154 bytes
+2022/11/02-20:41:00.161 217c Compacted 1@1 + 2@2 files => 4055024 bytes
+2022/11/02-20:41:00.162 217c compacted to: files[ 0 0 2 0 0 0 0 ]
+2022/11/02-20:41:00.163 217c Delete type=2 #73
+2022/11/02-20:41:00.163 217c Delete type=2 #74
+2022/11/02-20:41:00.163 217c Delete type=2 #77
