@@ -56,49 +56,48 @@ app.post("/api/sendMsgs", async (req, res) => {
   let { numbers, msg } = await req.body;
   let actionLog: any[] = [];
   let record: any;
+  let isArrey: boolean = Array.isArray(msg);
 
-  for (let i = 0; i <= numbers.length - 1; i++) {
-    let log = ``;
+  if (isArrey && msg.length != numbers.length)
+    return res.send({ status: "no", data: "msg arrey != numbers arrey" });
 
-    await client
-      .isRegisteredUser(`${numbers[i]}@c.us`)
-      .then(function (isRegistered: any) {
-        if (isRegistered) {
-          let m = `${msg} ${i}`;
-          console.log(m);
-          client.sendMessage(`${numbers[i]}@c.us`, m);
-          record = { number: numbers[i], status: "ok", row: i, msg: msg };
-        } else {
-          log = `***** ${numbers[i]} is not registerd ******`;
+  try {
+    for (let i = 0; i <= numbers.length - 1; i++) {
+      let log = ``;
+      let Message = `${isArrey ? msg[i] : msg}`;
+      await client
+        .isRegisteredUser(`${numbers[i]}@c.us`)
+        .then(function (isRegistered: any) {
+          if (isRegistered) {
+            client.sendMessage(`${numbers[i]}@c.us`, Message);
+            record = { number: numbers[i], status: "ok", row: i, msg: Message };
+          } else {
+            log = `***** ${numbers[i]} is not registerd ******`;
+            record = {
+              number: numbers[i],
+              status: "registretion error",
+              row: i,
+              msg: log,
+            };
+          }
+        })
+        .catch((err: any) => {
           record = {
             number: numbers[i],
-            status: "registretion error",
+            status: "catch error",
             row: i,
-            msg: log,
+            msg: err,
           };
-        }
-      })
-      .catch((err: any) => {
-        record = {
-          number: numbers[i],
-          status: "catch error",
-          row: i,
-          msg: err,
-        };
-      });
-    actionLog.push(record);
+        });
+      actionLog.push(record);
+    }
+  } catch (e) {
+    res.send(e);
   }
   console.log(actionLog);
-  res.send(JSON.stringify(actionLog));
+  return res.send(JSON.stringify(actionLog));
 });
 
-client.on("message", async (message: any) => {
-  console.log(message._data.notifyName);
-  let response = `hi ${message._data.notifyName}`;
-  client.sendMessage(message.from, response);
-});
-
-//getting response
 client
   .initialize()
   .then(() => console.log("client initialize ....\n to init in initializ"))

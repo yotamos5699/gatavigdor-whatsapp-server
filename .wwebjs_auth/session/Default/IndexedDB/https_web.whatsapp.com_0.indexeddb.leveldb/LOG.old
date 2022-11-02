@@ -1,14 +1,14 @@
-2022/11/01-21:24:00.163 2160 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2022/11/01-21:24:00.164 2160 Recovering log #51
-2022/11/01-21:24:00.293 2160 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000051.log 
-2022/11/01-21:24:00.293 2160 Delete type=2 #48
-2022/11/01-21:24:00.293 2160 Delete type=2 #49
-2022/11/01-21:24:00.293 2160 Delete type=2 #52
-2022/11/01-21:24:20.045 2160 Level-0 table #57: started
-2022/11/01-21:24:20.102 2160 Level-0 table #57: 1099912 bytes OK
-2022/11/01-21:24:20.104 2160 Delete type=0 #51
-2022/11/01-21:24:20.192 24f0 Compacting 1@1 + 2@2 files
-2022/11/01-21:24:20.330 24f0 Generated table #58@1: 42805 keys, 2266697 bytes
-2022/11/01-21:24:20.425 24f0 Generated table #59@1: 21552 keys, 936928 bytes
-2022/11/01-21:24:20.425 24f0 Compacted 1@1 + 2@2 files => 3203625 bytes
-2022/11/01-21:24:20.426 24f0 compacted to: files[ 0 0 2 0 0 0 0 ]
+2022/11/01-21:40:53.994 2258 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/11/01-21:40:53.994 2258 Recovering log #61
+2022/11/01-21:40:54.181 2258 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000061.log 
+2022/11/01-21:41:07.022 3b88 Level-0 table #67: started
+2022/11/01-21:41:07.068 3b88 Level-0 table #67: 1240949 bytes OK
+2022/11/01-21:41:07.096 3b88 Delete type=0 #61
+2022/11/01-21:41:07.174 1944 Compacting 1@1 + 2@2 files
+2022/11/01-21:41:07.712 1944 Generated table #68@1: 32141 keys, 2269179 bytes
+2022/11/01-21:41:07.812 1944 Generated table #69@1: 40689 keys, 1388708 bytes
+2022/11/01-21:41:07.812 1944 Compacted 1@1 + 2@2 files => 3657887 bytes
+2022/11/01-21:41:07.813 1944 compacted to: files[ 0 0 2 0 0 0 0 ]
+2022/11/01-21:41:07.813 1944 Delete type=2 #63
+2022/11/01-21:41:07.814 1944 Delete type=2 #64
+2022/11/01-21:41:07.814 1944 Delete type=2 #67

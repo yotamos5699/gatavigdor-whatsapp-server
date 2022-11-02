@@ -1,17 +1,11 @@
-2022/11/01-21:26:58.442 39d8 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2022/11/01-21:26:58.442 39d8 Recovering log #56
-2022/11/01-21:26:58.535 39d8 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000056.log 
-2022/11/01-21:26:58.535 39d8 Delete type=2 #53
-2022/11/01-21:26:58.535 39d8 Delete type=2 #54
-2022/11/01-21:26:58.535 39d8 Delete type=2 #57
-2022/11/01-21:27:21.356 61c Level-0 table #62: started
-2022/11/01-21:27:21.401 61c Level-0 table #62: 1144069 bytes OK
-2022/11/01-21:27:21.403 61c Delete type=0 #56
-2022/11/01-21:27:21.725 2f38 Compacting 1@1 + 2@2 files
-2022/11/01-21:27:21.843 2f38 Generated table #63@1: 38691 keys, 2265033 bytes
-2022/11/01-21:27:21.901 2f38 Generated table #64@1: 29856 keys, 1132184 bytes
-2022/11/01-21:27:21.901 2f38 Compacted 1@1 + 2@2 files => 3397217 bytes
-2022/11/01-21:27:21.903 2f38 compacted to: files[ 0 0 2 0 0 0 0 ]
-2022/11/01-21:27:21.903 2f38 Delete type=2 #58
-2022/11/01-21:27:21.903 2f38 Delete type=2 #59
-2022/11/01-21:27:21.903 2f38 Delete type=2 #62
+2022/11/02-19:52:19.865 590 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/11/02-19:52:19.875 590 Recovering log #66
+2022/11/02-19:52:19.987 590 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000066.log 
+2022/11/02-19:52:35.255 203c Level-0 table #72: started
+2022/11/02-19:52:35.313 203c Level-0 table #72: 1221935 bytes OK
+2022/11/02-19:52:35.315 203c Delete type=0 #66
+2022/11/02-19:52:35.340 203c Compacting 1@1 + 2@2 files
+2022/11/02-19:52:35.449 203c Generated table #73@1: 31182 keys, 2266310 bytes
+2022/11/02-19:52:35.554 203c Generated table #74@1: 45137 keys, 1618008 bytes
+2022/11/02-19:52:35.554 203c Compacted 1@1 + 2@2 files => 3884318 bytes
+2022/11/02-19:52:35.555 203c compacted to: files[ 0 0 2 0 0 0 0 ]
