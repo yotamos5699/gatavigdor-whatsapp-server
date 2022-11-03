@@ -1,32 +1,48 @@
-2022/11/03-16:17:37.044 2a94 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2022/11/03-16:17:37.044 2a94 Recovering log #133
-2022/11/03-16:17:37.192 2a94 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000133.log 
-2022/11/03-16:17:48.079 2a94 Level-0 table #140: started
-2022/11/03-16:17:48.128 2a94 Level-0 table #140: 1260039 bytes OK
-2022/11/03-16:17:48.130 2a94 Delete type=0 #133
-2022/11/03-16:17:48.134 2a94 Compacting 1@1 + 3@2 files
-2022/11/03-16:17:48.236 2a94 Generated table #141@1: 30190 keys, 2250453 bytes
-2022/11/03-16:17:48.371 2a94 Generated table #142@1: 25103 keys, 2278440 bytes
-2022/11/03-16:17:48.480 2a94 Generated table #143@1: 69126 keys, 2269385 bytes
-2022/11/03-16:17:48.486 2a94 Generated table #144@1: 1385 keys, 24951 bytes
-2022/11/03-16:17:48.486 2a94 Compacted 1@1 + 3@2 files => 6823229 bytes
-2022/11/03-16:17:48.487 2a94 compacted to: files[ 0 0 4 0 0 0 0 ]
-2022/11/03-16:17:48.487 2a94 Delete type=2 #135
-2022/11/03-16:17:48.487 2a94 Delete type=2 #136
-2022/11/03-16:17:48.487 2a94 Delete type=2 #137
-2022/11/03-16:17:48.487 2a94 Delete type=2 #140
-2022/11/03-16:18:29.195 3e48 Level-0 table #146: started
-2022/11/03-16:18:29.247 3e48 Level-0 table #146: 1256520 bytes OK
-2022/11/03-16:18:29.248 3e48 Delete type=0 #139
-2022/11/03-16:18:29.378 3e48 Compacting 1@1 + 4@2 files
-2022/11/03-16:18:29.490 3e48 Generated table #147@1: 29745 keys, 2250598 bytes
-2022/11/03-16:18:29.615 3e48 Generated table #148@1: 24998 keys, 2278542 bytes
-2022/11/03-16:18:29.751 3e48 Generated table #149@1: 64120 keys, 2267447 bytes
-2022/11/03-16:18:29.773 3e48 Generated table #150@1: 10968 keys, 199027 bytes
-2022/11/03-16:18:29.773 3e48 Compacted 1@1 + 4@2 files => 6995614 bytes
-2022/11/03-16:18:29.775 3e48 compacted to: files[ 0 0 4 0 0 0 0 ]
-2022/11/03-16:18:29.775 3e48 Delete type=2 #141
-2022/11/03-16:18:29.775 3e48 Delete type=2 #142
-2022/11/03-16:18:29.775 3e48 Delete type=2 #143
-2022/11/03-16:18:29.775 3e48 Delete type=2 #144
-2022/11/03-16:18:29.775 3e48 Delete type=2 #146
+2022/11/03-16:21:06.570 1e18 Reusing MANIFEST C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2022/11/03-16:21:06.570 1e18 Recovering log #145
+2022/11/03-16:21:06.617 1e18 Reusing old log C:\Users\win-10\Desktop\code\BIZMOD_WHATSAPP_SERVER\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000145.log 
+2022/11/03-16:21:56.004 1e18 Level-0 table #153: started
+2022/11/03-16:21:56.061 1e18 Level-0 table #153: 1159621 bytes OK
+2022/11/03-16:21:56.064 1e18 Delete type=0 #145
+2022/11/03-16:21:56.092 1d9c Compacting 1@1 + 4@2 files
+2022/11/03-16:21:56.207 1d9c Generated table #154@1: 29868 keys, 2248482 bytes
+2022/11/03-16:21:56.345 1d9c Generated table #155@1: 24229 keys, 2279177 bytes
+2022/11/03-16:21:56.454 1d9c Generated table #156@1: 62639 keys, 2271109 bytes
+2022/11/03-16:21:56.485 1d9c Generated table #157@1: 16313 keys, 366294 bytes
+2022/11/03-16:21:56.485 1d9c Compacted 1@1 + 4@2 files => 7165062 bytes
+2022/11/03-16:21:56.487 1d9c compacted to: files[ 0 0 4 0 0 0 0 ]
+2022/11/03-16:21:56.909 1d9c Level-0 table #159: started
+2022/11/03-16:21:56.946 1d9c Level-0 table #159: 897307 bytes OK
+2022/11/03-16:21:56.948 1d9c Delete type=2 #147
+2022/11/03-16:21:56.948 1d9c Delete type=2 #148
+2022/11/03-16:21:56.948 1d9c Delete type=2 #149
+2022/11/03-16:21:56.948 1d9c Delete type=2 #150
+2022/11/03-16:21:56.948 1d9c Delete type=0 #152
+2022/11/03-16:21:56.948 1d9c Delete type=2 #153
+2022/11/03-16:22:17.269 1d9c Compacting 1@1 + 4@2 files
+2022/11/03-16:22:17.368 1d9c Generated table #160@1: 29466 keys, 2247520 bytes
+2022/11/03-16:22:17.482 1d9c Generated table #161@1: 23819 keys, 2289256 bytes
+2022/11/03-16:22:17.593 1d9c Generated table #162@1: 61953 keys, 2270746 bytes
+2022/11/03-16:22:17.623 1d9c Generated table #163@1: 18142 keys, 441935 bytes
+2022/11/03-16:22:17.623 1d9c Compacted 1@1 + 4@2 files => 7249457 bytes
+2022/11/03-16:22:17.624 1d9c compacted to: files[ 0 0 4 0 0 0 0 ]
+2022/11/03-16:22:17.625 1d9c Delete type=2 #154
+2022/11/03-16:22:17.625 1d9c Delete type=2 #155
+2022/11/03-16:22:17.625 1d9c Delete type=2 #156
+2022/11/03-16:22:17.625 1d9c Delete type=2 #157
+2022/11/03-16:22:17.625 1d9c Delete type=2 #159
+2022/11/03-16:22:29.653 1d9c Level-0 table #165: started
+2022/11/03-16:22:29.696 1d9c Level-0 table #165: 1240399 bytes OK
+2022/11/03-16:22:29.698 1d9c Delete type=0 #158
+2022/11/03-16:22:30.283 1d9c Compacting 1@1 + 4@2 files
+2022/11/03-16:22:30.405 1d9c Generated table #166@1: 29764 keys, 2249668 bytes
+2022/11/03-16:22:30.544 1d9c Generated table #167@1: 23657 keys, 2289325 bytes
+2022/11/03-16:22:30.680 1d9c Generated table #168@1: 61894 keys, 2272454 bytes
+2022/11/03-16:22:30.735 1d9c Generated table #169@1: 23163 keys, 643826 bytes
+2022/11/03-16:22:30.735 1d9c Compacted 1@1 + 4@2 files => 7455273 bytes
+2022/11/03-16:22:30.736 1d9c compacted to: files[ 0 0 4 0 0 0 0 ]
+2022/11/03-16:22:30.736 1d9c Delete type=2 #160
+2022/11/03-16:22:30.736 1d9c Delete type=2 #161
+2022/11/03-16:22:30.736 1d9c Delete type=2 #162
+2022/11/03-16:22:30.736 1d9c Delete type=2 #163
+2022/11/03-16:22:30.736 1d9c Delete type=2 #165
