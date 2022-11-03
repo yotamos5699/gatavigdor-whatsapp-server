@@ -2,6 +2,11 @@ import express from "express";
 import qrcode from "qrcode-terminal";
 import cors from "cors";
 import { Client, LocalAuth } from "whatsapp-web.js"; //@ts-ignore
+import fs, { writeFileSync } from "fs";
+import path from "path";
+import axios from "axios";
+const baseUrl: string =
+  "https://script.google.com/macros/s/AKfycbyPFqFnKqnp7nfvt6VBbHOZuEj6pKlay-0Y_TjAngi2r8gfKZ_iQeegdeOItpF3iTvu/exec";
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -98,9 +103,95 @@ app.post("/api/sendMsgs", async (req, res) => {
   return res.send(JSON.stringify(actionLog));
 });
 
+client.on("message", async (message) => {
+  let file = JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, `./sendPremmision.json`), "utf8")
+  );
+
+  console.log(file);
+  if (message.body == "1111" && file.isAllowed == false) {
+    file.isAllowed = true;
+    writeFileSync(
+      path.resolve(__dirname, `./sendPremmision.json`),
+      JSON.stringify(file)
+    );
+    client.sendMessage(message.from, "כמה ?");
+  }
+  if (
+    file.isAllowed &&
+    parseInt(message.body) != NaN &&
+    message.body != "1111"
+  ) {
+    let amount = parseInt(message.body);
+    let res = await axios.get(`${baseUrl}?act=true&amount=${amount}`, {
+      withCredentials: true,
+    });
+    file.isAllowed = false;
+    writeFileSync(
+      path.resolve(__dirname, `./sendPremmision.json`),
+      JSON.stringify(file)
+    );
+    sendToJews(res.data.numbers, res.data.msg, message.from, res.data.total);
+    //client.sendMessage(message.from, "נשלח");
+    console.log(res.data);
+  }
+
+  // const constructedUrl = `${msgUrl}?from=${JSON.stringify(
+  //   message.from
+  // )}&name=${JSON.stringify(message._data.notifyName)}&msg=${JSON.stringify(
+  //   message.body
+  // )}`;
+  // console.log(constructedUrl);
+  // axios.get(constructedUrl);
+});
 client
   .initialize()
   .then(() => console.log("client initialize ....\n to init in initializ"))
   .catch((err: any) => console.log(err));
+
+async function sendToJews(
+  numbers: string | any[],
+  msg: any,
+  clientn: any,
+  total: string
+) {
+  let actionLog: any[] = [];
+  let record: any;
+
+  try {
+    for (let i = 0; i <= numbers.length - 1; i++) {
+      let log = ``;
+      await client
+        .isRegisteredUser(`${numbers[i]}@c.us`)
+        .then(function (isRegistered: any) {
+          if (isRegistered) {
+            client.sendMessage(`${numbers[i]}@c.us`, msg);
+            record = { number: numbers[i], status: "ok", row: i, msg: msg };
+          } else {
+            log = `***** ${numbers[i]} is not registerd ******`;
+            record = {
+              number: numbers[i],
+              status: "registretion error",
+              row: i,
+              msg: log,
+            };
+          }
+        })
+        .catch((err: any) => {
+          record = {
+            number: numbers[i],
+            status: "catch error",
+            row: i,
+            msg: err,
+          };
+        });
+      actionLog.push(record);
+    }
+  } catch (e) {
+    return client.sendMessage(clientn, "תקלה");
+  }
+  console.log(actionLog);
+  return client.sendMessage(clientn, `נשלח.\n עד עכשיו כ${total}`);
+}
 
 module.exports = client;
