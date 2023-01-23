@@ -3,6 +3,7 @@ import qrcode from "qrcode-terminal";
 import cors from "cors";
 import { Client, LocalAuth, Message } from "whatsapp-web.js"; //@ts-ignore
 import fs, { writeFileSync } from "fs";
+//
 // import path from "path";
 // import axios from "axios";
 //const RETURN_MESSAGES_NUMBER = `+972545940054@c.us`;
