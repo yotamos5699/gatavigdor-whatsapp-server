@@ -20,10 +20,7 @@ const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 const client = new whatsapp_web_js_1.Client({
     authStrategy: new whatsapp_web_js_1.LocalAuth(),
-    puppeteer: {
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
-    },
+    puppeteer: { headless: true },
 });
 app.set("trust proxy", 1);
 client.on("qr", (qr) => {

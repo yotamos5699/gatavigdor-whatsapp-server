@@ -1,2 +1,3 @@
-2023/01/23-18:06:00.327 362c Creating DB C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Local Storage\leveldb since it was missing.
-2023/01/23-18:06:00.349 362c Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2023/01/23-18:59:55.926 1fe8 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Local Storage\leveldb/MANIFEST-000001
+2023/01/23-18:59:55.926 1fe8 Recovering log #3
+2023/01/23-18:59:55.927 1fe8 Reusing old log C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Local Storage\leveldb/000003.log 
