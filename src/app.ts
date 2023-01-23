@@ -47,9 +47,7 @@ app.post(
   "/api/sendMsgs",
   async (
     req: {
-      body:
-        | PromiseLike<{ numbers: any; msg: any }>
-        | { numbers: any; msg: any };
+      body: PromiseLike<{ numbers: any; msg: any }> | { numbers: any; msg: any };
     },
     res: { send: (arg0: unknown) => void }
   ) => {
@@ -58,8 +56,7 @@ app.post(
     let record: any;
     let isArrey: boolean = Array.isArray(msg);
 
-    if (isArrey && msg.length != numbers.length)
-      return res.send({ status: "no", data: "msg arrey != numbers arrey" });
+    if (isArrey && msg.length != numbers.length) return res.send({ status: "no", data: "msg arrey != numbers arrey" });
 
     try {
       for (let i = 0; i <= numbers.length - 1; i++) {
