@@ -16,12 +16,10 @@ const client = new Client({
   // session: session,
   authStrategy: new LocalAuth(),
 
-  puppeteer: { headless: true },
-
-  // puppeteer: {
-  //   headless: true,
-  //   args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
-  // },
+  puppeteer: {
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
+  },
 });
 
 app.set("trust proxy", 1); // trust first proxy
