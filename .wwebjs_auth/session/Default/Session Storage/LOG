@@ -1,3 +1,2 @@
-2023/01/23-18:59:56.450 4b0 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Session Storage/MANIFEST-000001
-2023/01/23-18:59:56.450 4b0 Recovering log #3
-2023/01/23-18:59:56.450 4b0 Reusing old log C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Session Storage/000003.log 
+2023/01/24-10:02:03.335 1bb0 Creating DB C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Session Storage since it was missing.
+2023/01/24-10:02:03.354 1bb0 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Session Storage/MANIFEST-000001

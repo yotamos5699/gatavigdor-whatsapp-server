@@ -1,3 +1,2 @@
-2023/01/23-18:59:55.937 32b4 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Platform Notifications/MANIFEST-000001
-2023/01/23-18:59:55.937 32b4 Recovering log #3
-2023/01/23-18:59:55.937 32b4 Reusing old log C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Platform Notifications/000003.log 
+2023/01/24-10:02:28.518 313c Creating DB C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Platform Notifications since it was missing.
+2023/01/24-10:02:28.548 313c Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Platform Notifications/MANIFEST-000001

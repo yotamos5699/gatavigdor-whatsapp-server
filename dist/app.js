@@ -24,7 +24,9 @@ const client = new whatsapp_web_js_1.Client({
 });
 app.set("trust proxy", 1);
 client.on("qr", (qr) => {
-    qrcode_terminal_1.default.generate(qr, { small: true });
+    qrcode_terminal_1.default.generate(qr, { small: true }, (qrcode) => {
+        console.log(qrcode);
+    });
 });
 client.on("ready", () => {
     console.log("Client is ready!");
@@ -87,12 +89,12 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
     console.log(actionLog);
     return res.send(JSON.stringify(actionLog));
 }));
-const serviceName = "972545940054@c.us";
+const serviceName2 = "972506655699@c.us";
 client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
     console.log({ message });
     const mm = ` :לקוח ${message._data.notifyName} :שלח  ${message.body} `;
     console.log({ mm });
-    client.sendMessage(serviceName, mm);
+    client.sendMessage(serviceName2, mm);
 }));
 client
     .initialize()

@@ -1,3 +1,2 @@
-2023/01/23-18:59:55.934 1fe8 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Service Worker\Database/MANIFEST-000001
-2023/01/23-18:59:55.934 1fe8 Recovering log #3
-2023/01/23-18:59:55.935 1fe8 Reusing old log C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Service Worker\Database/000003.log 
+2023/01/24-10:02:04.476 3668 Creating DB C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Service Worker\Database since it was missing.
+2023/01/24-10:02:04.494 3668 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\Service Worker\Database/MANIFEST-000001
