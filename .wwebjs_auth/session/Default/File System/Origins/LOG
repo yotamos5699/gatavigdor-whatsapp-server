@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 2023/02/06-11:11:39.280 3308 Creating DB C:\Users\יותם\cod\whatsapp wa_0.1\.wwebjs_auth\session\Default\File System\Origins since it was missing.
 2023/02/06-11:11:39.360 3308 Reusing MANIFEST C:\Users\יותם\cod\whatsapp wa_0.1\.wwebjs_auth\session\Default\File System\Origins/MANIFEST-000001
+=======
+2023/01/24-10:02:04.573 2770 Creating DB C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\File System\Origins since it was missing.
+2023/01/24-10:02:04.590 2770 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\File System\Origins/MANIFEST-000001
+>>>>>>> 006a489c9cb3998ee53e2832dfc3de189f8eff9e

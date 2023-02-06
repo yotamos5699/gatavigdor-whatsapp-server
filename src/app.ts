@@ -15,6 +15,7 @@ const PORT = process.env.PORT || 5000;
 const client = new Client({
   // session: session,
   authStrategy: new LocalAuth(),
+
   puppeteer: {
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
@@ -23,7 +24,9 @@ const client = new Client({
 
 app.set("trust proxy", 1); // trust first proxy
 client.on("qr", (qr: any) => {
-  qrcode.generate(qr, { small: true });
+  qrcode.generate(qr, { small: true }, (qrcode) => {
+    console.log(qrcode);
+  });
 });
 
 client.on("ready", () => {
@@ -47,9 +50,7 @@ app.post(
   "/api/sendMsgs",
   async (
     req: {
-      body:
-        | PromiseLike<{ numbers: any; msg: any }>
-        | { numbers: any; msg: any };
+      body: PromiseLike<{ numbers: any; msg: any }> | { numbers: any; msg: any };
     },
     res: { send: (arg0: unknown) => void }
   ) => {
@@ -58,8 +59,7 @@ app.post(
     let record: any;
     let isArrey: boolean = Array.isArray(msg);
 
-    if (isArrey && msg.length != numbers.length)
-      return res.send({ status: "no", data: "msg arrey != numbers arrey" });
+    if (isArrey && msg.length != numbers.length) return res.send({ status: "no", data: "msg arrey != numbers arrey" });
 
     try {
       for (let i = 0; i <= numbers.length - 1; i++) {
@@ -108,14 +108,14 @@ app.post(
 //   console.log({ msg });
 //   msg.reply("pong");
 // });
-const serviceName = "972545940054@c.us";
-
+//const serviceName = "972545940054@c.us";
+const serviceName2 = "972506655699@c.us";
 client.on("message", async (message: Message | any) => {
   //console.log("body", message._data.body);
   console.log({ message });
   const mm = ` :לקוח ${message._data.notifyName} :שלח  ${message.body} `;
   console.log({ mm });
-  client.sendMessage(serviceName, mm);
+  client.sendMessage(serviceName2, mm);
 });
 // let file = JSON.parse(
 //   fs.readFileSync(path.resolve(__dirname, `./sendPremmision.json`), "utf8")
