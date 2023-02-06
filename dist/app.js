@@ -18,6 +18,7 @@ const cors_1 = __importDefault(require("cors"));
 const whatsapp_web_js_1 = require("whatsapp-web.js");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
+let toSend = false;
 const client = new whatsapp_web_js_1.Client({
     authStrategy: new whatsapp_web_js_1.LocalAuth(),
     puppeteer: {
@@ -32,6 +33,7 @@ client.on("qr", (qr) => {
     });
 });
 client.on("ready", () => {
+    toSend = false;
     console.log("Client is ready!");
 });
 app.get("/", (_req, res) => {
@@ -42,6 +44,19 @@ app.use((0, cors_1.default)({
 }));
 app.use(express_1.default.json());
 app.listen(PORT, () => console.log(`server? listening on port` + PORT));
+function delay() {
+    if (toSend)
+        return;
+    return new Promise((resolve) => {
+        const interval = setInterval(() => {
+            if (toSend) {
+                clearInterval(interval);
+                resolve(true);
+                console.log("ready to send");
+            }
+        }, 2000);
+    });
+}
 app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { numbers, msg } = yield req.body;
     let actionLog = [];
@@ -49,6 +64,8 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
     let isArrey = Array.isArray(msg);
     if (isArrey && msg.length != numbers.length)
         return res.send({ status: "no", data: "msg arrey != numbers arrey" });
+    const stop = yield delay();
+    console.log("pass condition status ", stop);
     try {
         for (let i = 0; i <= numbers.length - 1; i++) {
             let log = ``;
@@ -92,16 +109,19 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
     console.log(actionLog);
     return res.send(JSON.stringify(actionLog));
 }));
-const serviceName2 = "972506655699@c.us";
+const serviceName = "972545940054@c.us";
 client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
     console.log({ message });
     const mm = ` :לקוח ${message._data.notifyName} :שלח  ${message.body} `;
     console.log({ mm });
-    client.sendMessage(serviceName2, mm);
+    client.sendMessage(serviceName, mm);
 }));
 client
     .initialize()
-    .then(() => console.log("client initialize ....\n to init in initializ"))
+    .then(() => {
+    toSend = true;
+    console.log("client initialize ....\n to init in initializ");
+})
     .catch((err) => console.log(err));
 module.exports = client;
 //# sourceMappingURL=app.js.map
