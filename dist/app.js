@@ -50,7 +50,7 @@ function delay() {
         return;
     return new Promise((resolve) => {
         const interval = setInterval(() => {
-            console.log("in interval");
+            console.log("in interval", { toSend });
             if (toSend) {
                 clearInterval(interval);
                 resolve(true);
