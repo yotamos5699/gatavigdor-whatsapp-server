@@ -45,10 +45,12 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.json());
 app.listen(PORT, () => console.log(`server? listening on port` + PORT));
 function delay() {
+    console.log("in delay !!");
     if (toSend)
         return;
     return new Promise((resolve) => {
         const interval = setInterval(() => {
+            console.log("in interval");
             if (toSend) {
                 clearInterval(interval);
                 resolve(true);
