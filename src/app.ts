@@ -30,7 +30,7 @@ client.on("qr", (qr: any) => {
 });
 
 client.on("ready", () => {
-  toSend = false;
+  toSend = true;
   console.log("Client is ready!");
 });
 //npm i --save-dev @types/node
