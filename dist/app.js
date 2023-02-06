@@ -18,7 +18,7 @@ const cors_1 = __importDefault(require("cors"));
 const whatsapp_web_js_1 = require("whatsapp-web.js");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
-let toSend = false;
+let toSend;
 const client = new whatsapp_web_js_1.Client({
     authStrategy: new whatsapp_web_js_1.LocalAuth(),
     puppeteer: {
