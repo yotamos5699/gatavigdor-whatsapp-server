@@ -18,7 +18,6 @@ const cors_1 = __importDefault(require("cors"));
 const whatsapp_web_js_1 = require("whatsapp-web.js");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
-let toSend = true;
 const client = new whatsapp_web_js_1.Client({
     authStrategy: new whatsapp_web_js_1.LocalAuth(),
     puppeteer: {
@@ -33,7 +32,6 @@ client.on("qr", (qr) => {
     });
 });
 client.on("ready", () => {
-    toSend = true;
     console.log("Client is ready!");
 });
 app.get("/", (_req, res) => {
@@ -44,72 +42,105 @@ app.use((0, cors_1.default)({
 }));
 app.use(express_1.default.json());
 app.listen(PORT, () => console.log(`server? listening on port` + PORT));
-function delay() {
-    console.log("in delay !!");
-    if (toSend)
-        return;
-    return new Promise((resolve) => {
-        const interval = setInterval(() => {
-            console.log("in interval", { toSend });
-            if (toSend) {
-                clearInterval(interval);
-                resolve(true);
-                console.log("ready to send");
-            }
-        }, 2000);
-    });
-}
 app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     let { numbers, msg } = yield req.body;
     let actionLog = [];
     let record;
     let isArrey = Array.isArray(msg);
     if (isArrey && msg.length != numbers.length)
         return res.send({ status: "no", data: "msg arrey != numbers arrey" });
-    const stop = yield delay();
-    console.log("pass condition status ", stop);
-    try {
+    const x = client;
+    if ((_a = x === null || x === void 0 ? void 0 : x.pupBrowser) === null || _a === void 0 ? void 0 : _a._connection) {
         for (let i = 0; i <= numbers.length - 1; i++) {
             let log = ``;
             let Message = `${isArrey ? msg[i] : msg}`;
-            yield client
-                .isRegisteredUser(`${numbers[i]}@c.us`)
-                .then(function (isRegistered) {
-                if (isRegistered) {
-                    client.sendMessage(`${numbers[i]}@c.us`, Message);
-                    record = {
-                        number: numbers[i],
-                        status: "ok",
-                        row: i,
-                        msg: Message,
-                    };
-                }
-                else {
-                    log = `***** ${numbers[i]} is not registerd ******`;
-                    record = {
-                        number: numbers[i],
-                        status: "registretion error",
-                        row: i,
-                        msg: log,
-                    };
-                }
-            })
-                .catch((err) => {
+            try {
+                yield client
+                    .isRegisteredUser(`${numbers[i]}@c.us`)
+                    .then(function (isRegistered) {
+                    if (isRegistered) {
+                        client.sendMessage(`${numbers[i]}@c.us`, Message);
+                        record = {
+                            number: numbers[i],
+                            status: "ok",
+                            row: i,
+                            msg: Message,
+                        };
+                    }
+                    else {
+                        log = `***** ${numbers[i]} is not registerd ******`;
+                        record = {
+                            number: numbers[i],
+                            status: "registretion error",
+                            row: i,
+                            msg: log,
+                        };
+                    }
+                });
+            }
+            catch (err) {
                 record = {
                     number: numbers[i],
                     status: "catch error",
                     row: i,
                     msg: err,
                 };
-            });
+            }
             actionLog.push(record);
         }
+        return res.send(actionLog);
     }
-    catch (e) {
-        res.send(e);
-    }
+    client
+        .initialize()
+        .then((res) => __awaiter(void 0, void 0, void 0, function* () {
+        console.log({ res });
+        console.log("client initialize ....\n to init in initializ");
+        for (let i = 0; i <= numbers.length - 1; i++) {
+            let log = ``;
+            let Message = `${isArrey ? msg[i] : msg}`;
+            try {
+                yield client
+                    .isRegisteredUser(`${numbers[i]}@c.us`)
+                    .then(function (isRegistered) {
+                    if (isRegistered) {
+                        client.sendMessage(`${numbers[i]}@c.us`, Message);
+                        record = {
+                            number: numbers[i],
+                            status: "ok",
+                            row: i,
+                            msg: Message,
+                        };
+                    }
+                    else {
+                        log = `***** ${numbers[i]} is not registerd ******`;
+                        record = {
+                            number: numbers[i],
+                            status: "registretion error",
+                            row: i,
+                            msg: log,
+                        };
+                    }
+                });
+            }
+            catch (err) {
+                record = {
+                    number: numbers[i],
+                    status: "catch error",
+                    row: i,
+                    msg: err,
+                };
+            }
+            actionLog.push(record);
+        }
+    }))
+        .then(() => {
+        return res.send(actionLog);
+    })
+        .catch((e) => {
+        return res.send(e);
+    });
     console.log(actionLog);
-    return res.send(JSON.stringify(actionLog));
 }));
 const serviceName = "972545940054@c.us";
 client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
@@ -118,12 +149,5 @@ client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* ()
     console.log({ mm });
     client.sendMessage(serviceName, mm);
 }));
-client
-    .initialize()
-    .then(() => {
-    toSend = true;
-    console.log("client initialize ....\n to init in initializ");
-})
-    .catch((err) => console.log(err));
 module.exports = client;
 //# sourceMappingURL=app.js.map
