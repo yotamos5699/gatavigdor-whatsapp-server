@@ -33,7 +33,7 @@ client.on("qr", (qr) => {
     });
 });
 client.on("ready", () => {
-    toSend = false;
+    toSend = true;
     console.log("Client is ready!");
 });
 app.get("/", (_req, res) => {
