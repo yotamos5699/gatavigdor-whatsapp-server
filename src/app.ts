@@ -11,8 +11,8 @@ import fs, { writeFileSync } from "fs";
 // const baseUrl: string =
 //   "https://script.google.com/macros/s/AKfycbyPFqFnKqnp7nfvt6VBbHOZuEj6pKlay-0Y_TjAngi2r8gfKZ_iQeegdeOItpF3iTvu/exec";
 const app = express();
-//const PORT = process.env.PORT || 5000;
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+//const PORT = 5000;
 //let toSend: boolean = true;
 const client = new Client({
   // session: session,
