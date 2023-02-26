@@ -1,30 +1,3 @@
-2023/02/26-10:15:52.675 3618 Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2023/02/26-10:15:52.680 3618 Recovering log #97
-2023/02/26-10:15:52.750 3618 Reusing old log C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000097.log 
-2023/02/26-10:15:52.867 287c Level-0 table #103: started
-2023/02/26-10:15:52.921 287c Level-0 table #103: 1428217 bytes OK
-2023/02/26-10:15:52.925 287c Delete type=0 #97
-2023/02/26-10:15:52.975 287c Level-0 table #105: started
-2023/02/26-10:15:53.033 287c Level-0 table #105: 1431058 bytes OK
-2023/02/26-10:15:53.040 287c Delete type=0 #102
-2023/02/26-10:15:53.092 287c Level-0 table #107: started
-2023/02/26-10:15:53.153 287c Level-0 table #107: 1448302 bytes OK
-2023/02/26-10:15:53.157 287c Delete type=0 #104
-2023/02/26-10:15:53.430 3618 Compacting 2@0 + 1@1 files
-2023/02/26-10:15:53.615 3618 Generated table #108@0: 24757 keys, 2161687 bytes
-2023/02/26-10:15:53.834 3618 Generated table #109@0: 25376 keys, 1902112 bytes
-2023/02/26-10:15:53.834 3618 Compacted 2@0 + 1@1 files => 4063799 bytes
-2023/02/26-10:15:53.839 3618 compacted to: files[ 0 2 2 0 0 0 0 ]
-2023/02/26-10:15:53.843 8a4 Expanding@1 1+2 (1902112+3569777 bytes) to 2+2 (4063799+3569777 bytes)
-2023/02/26-10:15:53.843 8a4 Compacting 2@1 + 2@2 files
-2023/02/26-10:15:53.997 8a4 Generated table #110@1: 22035 keys, 2158399 bytes
-2023/02/26-10:15:54.210 8a4 Generated table #111@1: 43375 keys, 1491279 bytes
-2023/02/26-10:15:54.210 8a4 Compacted 2@1 + 2@2 files => 3649678 bytes
-2023/02/26-10:15:54.214 8a4 compacted to: files[ 0 0 2 0 0 0 0 ]
-2023/02/26-10:15:54.214 8a4 Delete type=2 #99
-2023/02/26-10:15:54.214 8a4 Delete type=2 #100
-2023/02/26-10:15:54.214 8a4 Delete type=2 #103
-2023/02/26-10:15:54.214 8a4 Delete type=2 #105
-2023/02/26-10:15:54.214 8a4 Delete type=2 #107
-2023/02/26-10:15:54.214 8a4 Delete type=2 #108
-2023/02/26-10:15:54.214 8a4 Delete type=2 #109
+2023/02/26-15:01:40.213 2fac Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2023/02/26-15:01:40.214 2fac Recovering log #7
+2023/02/26-15:01:40.269 2fac Reusing old log C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000007.log 
