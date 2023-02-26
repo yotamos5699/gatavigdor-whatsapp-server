@@ -12,7 +12,7 @@ import fs, { writeFileSync } from "fs";
 //   "https://script.google.com/macros/s/AKfycbyPFqFnKqnp7nfvt6VBbHOZuEj6pKlay-0Y_TjAngi2r8gfKZ_iQeegdeOItpF3iTvu/exec";
 const app = express();
 const PORT = process.env.PORT || 5000;
-//const PORT = 5000;
+
 //let toSend: boolean = true;
 const client = new Client({
   // session: session,
@@ -89,27 +89,27 @@ app.post(
         let Message = `${isArrey ? msg[i] : msg}`;
         try {
           console.log("number: ", numbers[i], " message: ", msg[i]);
-          let isRegistered = await client.isRegisteredUser(`${numbers[i]}@c.us`);
-          console.log({ isRegistered });
-          if (isRegistered) {
-            console.log("is registerd !!");
-            client.sendMessage(`${numbers[i]}@c.us`, Message);
-            record = {
-              number: numbers[i],
-              status: "ok",
-              row: i,
-              msg: Message,
-            };
-          } else {
-            console.log("is not registerd !!");
-            log = `***** ${numbers[i]} is not registerd ******`;
-            record = {
-              number: numbers[i],
-              status: "registretion error",
-              row: i,
-              msg: log,
-            };
-          }
+          await client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered: any) {
+            if (isRegistered) {
+              console.log("is registerd !!");
+              client.sendMessage(`${numbers[i]}@c.us`, Message);
+              record = {
+                number: numbers[i],
+                status: "ok",
+                row: i,
+                msg: Message,
+              };
+            } else {
+              console.log("is not registerd !!");
+              log = `***** ${numbers[i]} is not registerd ******`;
+              record = {
+                number: numbers[i],
+                status: "registretion error",
+                row: i,
+                msg: log,
+              };
+            }
+          });
         } catch (err) {
           record = {
             number: numbers[i],

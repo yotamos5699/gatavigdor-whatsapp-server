@@ -18,7 +18,7 @@ const qrcode_terminal_1 = __importDefault(require("qrcode-terminal"));
 const cors_1 = __importDefault(require("cors"));
 const whatsapp_web_js_1 = require("whatsapp-web.js");
 const app = (0, express_1.default)();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 const client = new whatsapp_web_js_1.Client({
     authStrategy: new whatsapp_web_js_1.LocalAuth(),
     puppeteer: {
@@ -59,28 +59,28 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
             let Message = `${isArrey ? msg[i] : msg}`;
             try {
                 console.log("number: ", numbers[i], " message: ", msg[i]);
-                let isRegistered = yield client.isRegisteredUser(`${numbers[i]}@c.us`);
-                console.log({ isRegistered });
-                if (isRegistered) {
-                    console.log("is registerd !!");
-                    client.sendMessage(`${numbers[i]}@c.us`, Message);
-                    record = {
-                        number: numbers[i],
-                        status: "ok",
-                        row: i,
-                        msg: Message,
-                    };
-                }
-                else {
-                    console.log("is not registerd !!");
-                    log = `***** ${numbers[i]} is not registerd ******`;
-                    record = {
-                        number: numbers[i],
-                        status: "registretion error",
-                        row: i,
-                        msg: log,
-                    };
-                }
+                yield client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered) {
+                    if (isRegistered) {
+                        console.log("is registerd !!");
+                        client.sendMessage(`${numbers[i]}@c.us`, Message);
+                        record = {
+                            number: numbers[i],
+                            status: "ok",
+                            row: i,
+                            msg: Message,
+                        };
+                    }
+                    else {
+                        console.log("is not registerd !!");
+                        log = `***** ${numbers[i]} is not registerd ******`;
+                        record = {
+                            number: numbers[i],
+                            status: "registretion error",
+                            row: i,
+                            msg: log,
+                        };
+                    }
+                });
             }
             catch (err) {
                 record = {
