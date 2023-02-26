@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const qrcode_terminal_1 = __importDefault(require("qrcode-terminal"));
@@ -43,7 +44,7 @@ app.use((0, cors_1.default)({
 app.use(express_1.default.json());
 app.listen(PORT, () => console.log(`server? listening on port` + PORT));
 app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _b;
     let { numbers, msg } = yield req.body;
     let actionLog = [];
     let record;
@@ -51,14 +52,12 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
     if (isArrey && msg.length != numbers.length)
         return res.send({ status: "no", data: "msg arrey != numbers arrey" });
     const x = client;
-    if ((_a = x === null || x === void 0 ? void 0 : x.pupBrowser) === null || _a === void 0 ? void 0 : _a._connection) {
+    if ((_b = x === null || x === void 0 ? void 0 : x.pupBrowser) === null || _b === void 0 ? void 0 : _b._connection) {
         for (let i = 0; i <= numbers.length - 1; i++) {
             let log = ``;
             let Message = `${isArrey ? msg[i] : msg}`;
             try {
-                yield client
-                    .isRegisteredUser(`${numbers[i]}@c.us`)
-                    .then(function (isRegistered) {
+                yield client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered) {
                     if (isRegistered) {
                         client.sendMessage(`${numbers[i]}@c.us`, Message);
                         record = {
@@ -100,9 +99,7 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
             let log = ``;
             let Message = `${isArrey ? msg[i] : msg}`;
             try {
-                yield client
-                    .isRegisteredUser(`${numbers[i]}@c.us`)
-                    .then(function (isRegistered) {
+                yield client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered) {
                     if (isRegistered) {
                         client.sendMessage(`${numbers[i]}@c.us`, Message);
                         record = {
@@ -149,5 +146,12 @@ client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* ()
     console.log({ mm });
     client.sendMessage(serviceName, mm);
 }));
+if (!((_a = client === null || client === void 0 ? void 0 : client.pupBrowser) === null || _a === void 0 ? void 0 : _a.isConnected))
+    client
+        .initialize()
+        .then(() => {
+        console.log("client initialize ....\n to init in initializ");
+    })
+        .catch((err) => console.log(err));
 module.exports = client;
 //# sourceMappingURL=app.js.map

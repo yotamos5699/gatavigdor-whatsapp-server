@@ -66,9 +66,7 @@ app.post(
   "/api/sendMsgs",
   async (
     req: {
-      body:
-        | PromiseLike<{ numbers: any; msg: any }>
-        | { numbers: any; msg: any };
+      body: PromiseLike<{ numbers: any; msg: any }> | { numbers: any; msg: any };
     },
     res: { send: (arg0: unknown) => void }
   ) => {
@@ -77,55 +75,33 @@ app.post(
     let record: any;
     let isArrey: boolean = Array.isArray(msg);
 
-    if (isArrey && msg.length != numbers.length)
-      return res.send({ status: "no", data: "msg arrey != numbers arrey" });
+    if (isArrey && msg.length != numbers.length) return res.send({ status: "no", data: "msg arrey != numbers arrey" });
     const x: any = client;
-    //  console.log({ client });
-    //console.log(Object.keys(client));
-    // [
-    //   '_events',
-    //   '_eventsCount',
-    //   '_maxListeners',
-    //   'options',
-    //   'authStrategy',
-    //   'pupBrowser',
-    //   'pupPage'
-    // ]
-    // console.log("first client object");
-    // console.log("Events ", x._events);
-    // console.log("authStrategy", x.authStrategy);
-    // console.log(
-    //   "authStrategy dddddddddddddddddddddd",
-    //   x?.pupBrowser?._connection
-    // );
-    // console.log(Object.keys(x));
-    // console.log(Object.keys(x.authStrategy));
+
     if (x?.pupBrowser?._connection) {
       for (let i = 0; i <= numbers.length - 1; i++) {
         let log = ``;
         let Message = `${isArrey ? msg[i] : msg}`;
         try {
-          await client
-            .isRegisteredUser(`${numbers[i]}@c.us`)
-            .then(function (isRegistered: any) {
-              if (isRegistered) {
-                client.sendMessage(`${numbers[i]}@c.us`, Message);
-                record = {
-                  number: numbers[i],
-                  status: "ok",
-                  row: i,
-                  msg: Message,
-                };
-              } else {
-                log = `***** ${numbers[i]} is not registerd ******`;
-                record = {
-                  number: numbers[i],
-                  status: "registretion error",
-                  row: i,
-                  msg: log,
-                };
-              }
-            });
+          await client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered: any) {
+            if (isRegistered) {
+              client.sendMessage(`${numbers[i]}@c.us`, Message);
+              record = {
+                number: numbers[i],
+                status: "ok",
+                row: i,
+                msg: Message,
+              };
+            } else {
+              log = `***** ${numbers[i]} is not registerd ******`;
+              record = {
+                number: numbers[i],
+                status: "registretion error",
+                row: i,
+                msg: log,
+              };
+            }
+          });
         } catch (err) {
           record = {
             number: numbers[i],
@@ -159,27 +135,25 @@ app.post(
           let log = ``;
           let Message = `${isArrey ? msg[i] : msg}`;
           try {
-            await client
-              .isRegisteredUser(`${numbers[i]}@c.us`)
-              .then(function (isRegistered: any) {
-                if (isRegistered) {
-                  client.sendMessage(`${numbers[i]}@c.us`, Message);
-                  record = {
-                    number: numbers[i],
-                    status: "ok",
-                    row: i,
-                    msg: Message,
-                  };
-                } else {
-                  log = `***** ${numbers[i]} is not registerd ******`;
-                  record = {
-                    number: numbers[i],
-                    status: "registretion error",
-                    row: i,
-                    msg: log,
-                  };
-                }
-              });
+            await client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered: any) {
+              if (isRegistered) {
+                client.sendMessage(`${numbers[i]}@c.us`, Message);
+                record = {
+                  number: numbers[i],
+                  status: "ok",
+                  row: i,
+                  msg: Message,
+                };
+              } else {
+                log = `***** ${numbers[i]} is not registerd ******`;
+                record = {
+                  number: numbers[i],
+                  status: "registretion error",
+                  row: i,
+                  msg: log,
+                };
+              }
+            });
           } catch (err) {
             record = {
               number: numbers[i],
@@ -211,12 +185,13 @@ client.on("message", async (message: Message | any) => {
   client.sendMessage(serviceName, mm);
 });
 
-// client
-//   .initialize()
-//   .then(() => {
-//     // toSend = true;
-//     console.log("client initialize ....\n to init in initializ");
-//   })
-//   .catch((err: any) => console.log(err));
+if (!client?.pupBrowser?.isConnected)
+  client
+    .initialize()
+    .then(() => {
+      // toSend = true;
+      console.log("client initialize ....\n to init in initializ");
+    })
+    .catch((err: any) => console.log(err));
 
 module.exports = client;
