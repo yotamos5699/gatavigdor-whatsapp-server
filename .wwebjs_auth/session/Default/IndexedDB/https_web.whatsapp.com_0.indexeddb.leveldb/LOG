@@ -1,3 +1,9 @@
-2023/02/26-15:04:12.915 2dec Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
-2023/02/26-15:04:12.916 2dec Recovering log #7
-2023/02/26-15:04:12.998 2dec Reusing old log C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000007.log 
+2023/03/01-11:15:51.793 183c Creating DB C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb since it was missing.
+2023/03/01-11:15:51.811 183c Reusing MANIFEST C:\Users\WIN10\Desktop\code\gatavigdor-whatsapp-server\.wwebjs_auth\session\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2023/03/01-11:15:51.866 2f8c Level-0 table #5: started
+2023/03/01-11:15:51.879 2f8c Level-0 table #5: 7486 bytes OK
+2023/03/01-11:15:51.886 2f8c Delete type=0 #3
+2023/03/01-11:15:51.887 2f8c Manual compaction at level-0 from '\x00\x01\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x02\x00\x00\x00' @ 0 : 0; will stop at (end)
+2023/03/01-11:16:17.196 1a7c Level-0 table #7: started
+2023/03/01-11:16:17.233 1a7c Level-0 table #7: 1144920 bytes OK
+2023/03/01-11:16:17.240 1a7c Delete type=0 #4
