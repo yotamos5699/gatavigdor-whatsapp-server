@@ -17,8 +17,19 @@ const express_1 = __importDefault(require("express"));
 const qrcode_terminal_1 = __importDefault(require("qrcode-terminal"));
 const cors_1 = __importDefault(require("cors"));
 const whatsapp_web_js_1 = require("whatsapp-web.js");
+const fs_1 = __importDefault(require("fs"));
+const f_path = "./" + "lastqr" + ".json";
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
+const writeFileIfExist = (data) => {
+    if (fs_1.default.existsSync(f_path))
+        fs_1.default.writeFileSync(f_path, JSON.stringify(data), {
+            encoding: "utf8",
+            flag: "w",
+        });
+    else
+        fs_1.default.writeFileSync(f_path, JSON.stringify(data), { encoding: "utf8" });
+};
 const client = new whatsapp_web_js_1.Client({
     authStrategy: new whatsapp_web_js_1.LocalAuth(),
     puppeteer: {
@@ -30,10 +41,14 @@ app.set("trust proxy", 1);
 client.on("qr", (qr) => {
     qrcode_terminal_1.default.generate(qr, { small: true }, (qrcode) => {
         console.log(qrcode);
+        const time = new Date().getTime();
+        writeFileIfExist({ time: time, qr: qrcode });
     });
 });
 client.on("ready", () => {
     console.log("Client is ready!");
+    const time = new Date().getTime();
+    writeFileIfExist({ time: time, qr: "ready" });
 });
 app.get("/", (_req, res) => {
     res.send("Hello World!");
@@ -43,6 +58,19 @@ app.use((0, cors_1.default)({
 }));
 app.use(express_1.default.json());
 app.listen(PORT, () => console.log(`server? listening on port` + PORT));
+app.get("/api/qr", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(_req.headers);
+    const time = new Date().getTime();
+    let file_exist = fs_1.default.existsSync(f_path);
+    if (!file_exist)
+        return res.send({ status: false, data: "no file" });
+    const result = JSON.parse(fs_1.default.readFileSync(f_path, { encoding: "utf8", flag: "r" }));
+    const delta = time - result.time;
+    if (delta > 30000)
+        return res.send({ status: false, data: "no new qr to scan" });
+    else
+        return res.send({ status: true, data: result });
+}));
 app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
     console.log("send sms api");

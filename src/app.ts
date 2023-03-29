@@ -3,15 +3,41 @@ import qrcode from "qrcode-terminal";
 import cors from "cors";
 import { Client, LocalAuth, Message } from "whatsapp-web.js"; //@ts-ignore
 import fs, { writeFileSync } from "fs";
+const f_path = "./" + "lastqr" + ".json";
 
-//
-// import path from "path";
-// import axios from "axios";
-//const RETURN_MESSAGES_NUMBER = `+972545940054@c.us`;
-// const baseUrl: string =
-//   "https://script.google.com/macros/s/AKfycbyPFqFnKqnp7nfvt6VBbHOZuEj6pKlay-0Y_TjAngi2r8gfKZ_iQeegdeOItpF3iTvu/exec";
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const writeFileIfExist = (data: any) => {
+  if (fs.existsSync(f_path))
+    fs.writeFileSync(f_path, JSON.stringify(data), {
+      encoding: "utf8",
+      flag: "w",
+    });
+  else fs.writeFileSync(f_path, JSON.stringify(data), { encoding: "utf8" });
+};
+
+// const handleFile = (qr:string,path:string)=>{
+//   let file_exist = fs.existsSync(path);
+//   //  console.log({ file_exist });
+//   if (file_exist) {
+//     let result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
+
+//     //  console.log("file exist");
+
+//       res.write(JSON.stringify(result));
+//       console.log("file updated");
+//     }
+//     if (result.stageName == "finish" || result?.termenate) {
+//       toBreak = true;
+//       clearInterval(intervals);
+//       console.log("BRAKING FROM GET PROGRESS BAR");
+//       fs.unlinkSync(path);
+//       return res.end();
+//     }
+//   }
+
+// }
 
 //let toSend: boolean = true;
 const client = new Client({
@@ -28,12 +54,16 @@ app.set("trust proxy", 1); // trust first proxy
 client.on("qr", (qr: any) => {
   qrcode.generate(qr, { small: true }, (qrcode) => {
     console.log(qrcode);
+    const time = new Date().getTime();
+    writeFileIfExist({ time: time, qr: qrcode });
   });
 });
 
 client.on("ready", () => {
   // toSend = true;
   console.log("Client is ready!");
+  const time = new Date().getTime();
+  writeFileIfExist({ time: time, qr: "ready" });
 });
 //npm i --save-dev @types/node
 // ******************************** SERVER INIT **************************************//
@@ -49,20 +79,16 @@ app.use(express.json());
 app.listen(PORT, () => console.log(`server? listening on port` + PORT));
 //******************************  main sript  *************************************/
 
-// function delay() {
-//   console.log("in delay !!");
-//   if (toSend) return;
-//   return new Promise((resolve) => {
-//     const interval = setInterval(() => {
-//       console.log("in interval", { toSend });
-//       if (toSend) {
-//         clearInterval(interval);
-//         resolve(true);
-//         console.log("ready to send");
-//       }
-//     }, 2000);
-//   });
-// }
+app.get("/api/qr", async (_req, res) => {
+  console.log(_req.headers);
+  const time = new Date().getTime();
+  let file_exist = fs.existsSync(f_path);
+  if (!file_exist) return res.send({ status: false, data: "no file" });
+  const result = JSON.parse(fs.readFileSync(f_path, { encoding: "utf8", flag: "r" }));
+  const delta = time - result.time;
+  if (delta > 30000) return res.send({ status: false, data: "no new qr to scan" });
+  else return res.send({ status: true, data: result });
+});
 
 app.post(
   "/api/sendMsgs",
