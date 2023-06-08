@@ -72,8 +72,15 @@ app.get("/api/qr", (_req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.send({ status: true, data: result });
 }));
 const mennagersNumbers = ["972506655699@c.us", "972509980680@c.us", "972509881787@c.us"];
-const sendToMennagers = (msg) => {
-    mennagersNumbers.forEach((number) => client.sendMessage(number, msg));
+const getMessage = (actionLog) => {
+    const IsErrors = actionLog.filter((m) => m.status == "catch error")[0];
+    if (IsErrors)
+        return `got some errors\n ${JSON.stringify(IsErrors)}`;
+    return "all good";
+};
+const sendToMennagers = (actionLog, msg) => {
+    const Message = msg !== null && msg !== void 0 ? msg : getMessage(actionLog);
+    mennagersNumbers.forEach((number) => client.sendMessage(number, Message));
 };
 app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
@@ -124,6 +131,7 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
             }
             actionLog.push(record);
         }
+        sendToMennagers(actionLog);
         return res.send(actionLog);
     }
     else {
@@ -169,14 +177,15 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
             }
         }))
             .then(() => {
+            sendToMennagers(actionLog);
             return res.send(actionLog);
         })
             .catch((e) => {
+            sendToMennagers(actionLog, "error server not working");
             return res.send(e);
         });
     }
     console.log(actionLog);
-    sendToMennagers("server ok !");
 }));
 const serviceName = "972545940054@c.us";
 client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {

@@ -70,8 +70,22 @@ app.get("/api/qr", async (_req, res) => {
 
 const mennagersNumbers = ["972506655699@c.us", "972509980680@c.us", "972509881787@c.us"];
 
-const sendToMennagers = (msg: string) => {
-  mennagersNumbers.forEach((number) => client.sendMessage(number, msg));
+interface msgObj {
+  number: number;
+  status: string;
+  row: number;
+  msg: any;
+}
+
+const getMessage = (actionLog: msgObj[]) => {
+  const IsErrors = actionLog.filter((m) => m.status == "catch error")[0];
+  if (IsErrors) return `got some errors\n ${JSON.stringify(IsErrors)}`;
+  return "all good";
+};
+
+const sendToMennagers = (actionLog: msgObj[], msg?: string) => {
+  const Message = msg ?? getMessage(actionLog);
+  mennagersNumbers.forEach((number) => client.sendMessage(number, Message));
 };
 
 app.post(
@@ -130,6 +144,7 @@ app.post(
         }
         actionLog.push(record);
       }
+      sendToMennagers(actionLog);
       return res.send(actionLog);
     } else {
       client
@@ -174,14 +189,16 @@ app.post(
           }
         })
         .then(() => {
+          sendToMennagers(actionLog);
           return res.send(actionLog);
         })
         .catch((e) => {
+          sendToMennagers(actionLog, "error server not working");
           return res.send(e);
         });
     }
     console.log(actionLog);
-    sendToMennagers("server ok !");
+
     //console.log("conenction stat on end == true", x?.pupBrowser?._connection, client.pupBrowser?.isConnected);
   }
 );
