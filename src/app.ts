@@ -17,28 +17,6 @@ const writeFileIfExist = (data: any) => {
   else fs.writeFileSync(f_path, JSON.stringify(data), { encoding: "utf8" });
 };
 
-// const handleFile = (qr:string,path:string)=>{
-//   let file_exist = fs.existsSync(path);
-//   //  console.log({ file_exist });
-//   if (file_exist) {
-//     let result = JSON.parse(fs.readFileSync(path, { encoding: "utf8", flag: "r" }));
-
-//     //  console.log("file exist");
-
-//       res.write(JSON.stringify(result));
-//       console.log("file updated");
-//     }
-//     if (result.stageName == "finish" || result?.termenate) {
-//       toBreak = true;
-//       clearInterval(intervals);
-//       console.log("BRAKING FROM GET PROGRESS BAR");
-//       fs.unlinkSync(path);
-//       return res.end();
-//     }
-//   }
-
-// }
-
 //let toSend: boolean = true;
 const client = new Client({
   // session: session,
@@ -89,6 +67,12 @@ app.get("/api/qr", async (_req, res) => {
   if (delta > 30000) return res.send({ status: false, data: "no new qr to scan" });
   else return res.send({ status: true, data: result });
 });
+
+const mennagersNumbers = ["972506655699@c.us", "972509980680@c.us", "972509881787@c.us"];
+
+const sendToMennagers = (msg: string) => {
+  mennagersNumbers.forEach((number) => client.sendMessage(number, msg));
+};
 
 app.post(
   "/api/sendMsgs",
@@ -197,6 +181,7 @@ app.post(
         });
     }
     console.log(actionLog);
+    sendToMennagers("server ok !");
     //console.log("conenction stat on end == true", x?.pupBrowser?._connection, client.pupBrowser?.isConnected);
   }
 );

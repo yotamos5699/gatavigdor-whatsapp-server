@@ -71,6 +71,10 @@ app.get("/api/qr", (_req, res) => __awaiter(void 0, void 0, void 0, function* ()
     else
         return res.send({ status: true, data: result });
 }));
+const mennagersNumbers = ["972506655699@c.us", "972509980680@c.us", "972509881787@c.us"];
+const sendToMennagers = (msg) => {
+    mennagersNumbers.forEach((number) => client.sendMessage(number, msg));
+};
 app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _c;
     console.log("send sms api");
@@ -172,6 +176,7 @@ app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, functi
         });
     }
     console.log(actionLog);
+    sendToMennagers("server ok !");
 }));
 const serviceName = "972545940054@c.us";
 client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
