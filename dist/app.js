@@ -73,7 +73,7 @@ app.get("/api/qr", (_req, res) => __awaiter(void 0, void 0, void 0, function* ()
 }));
 const mennagersNumbers = ["972506655699@c.us", "972509980680@c.us", "972509881787@c.us"];
 const getMessage = (actionLog) => {
-    const IsErrors = actionLog.filter((m) => m.status == "catch error")[0];
+    const IsErrors = actionLog.filter((m) => m.status == "catch error" || m.status == "registretion error")[0];
     if (IsErrors)
         return `got some errors\n ${JSON.stringify(IsErrors)}`;
     return "all good";

@@ -78,7 +78,7 @@ interface msgObj {
 }
 
 const getMessage = (actionLog: msgObj[]) => {
-  const IsErrors = actionLog.filter((m) => m.status == "catch error")[0];
+  const IsErrors = actionLog.filter((m) => m.status == "catch error" || m.status == "registretion error")[0];
   if (IsErrors) return `got some errors\n ${JSON.stringify(IsErrors)}`;
   return "all good";
 };
