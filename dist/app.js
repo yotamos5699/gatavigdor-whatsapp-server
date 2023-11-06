@@ -11,147 +11,89 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const qrcode_terminal_1 = __importDefault(require("qrcode-terminal"));
+const http_1 = require("http");
 const cors_1 = __importDefault(require("cors"));
+const socket_io_1 = require("socket.io");
 const whatsapp_web_js_1 = require("whatsapp-web.js");
-const fs_1 = __importDefault(require("fs"));
-const f_path = "./" + "lastqr" + ".json";
+const wwebjs_mongo_1 = require("wwebjs-mongo");
+const mongoose_1 = __importDefault(require("mongoose"));
+const messageSender_1 = require("./messageSender");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 app.use((0, cors_1.default)({
     origin: "*",
 }));
-const client = new whatsapp_web_js_1.Client({
-    authStrategy: new whatsapp_web_js_1.LocalAuth(),
-    puppeteer: {
-        headless: true,
-        args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
+app.get("/", (_req, res) => {
+    res.status(200).send({
+        success: true,
+        message: "welcome to the beginning of greatness",
+    });
+});
+const httpServer = (0, http_1.createServer)(app);
+const io = new socket_io_1.Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
     },
 });
-app.set("trust proxy", 1);
-app.post("/api/getQr", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("getQr");
-    const state = yield client.getState();
-    console.log({ state });
-    if (state)
-        return res.send({ status: true, data: "client connected" });
-    return client.on("qr", (qr) => {
-        qrcode_terminal_1.default.generate(qr, { small: true }, (qrcode) => {
-            console.log(qrcode);
-            if (qr)
-                return res.send({ status: false, data: qr });
-            else
-                return res.send({ status: true, data: "client connected" });
+const delCollection = ({ collection, mongoose }) => {
+    mongoose.connection.db
+        .collection(collection)
+        .deleteMany({})
+        .then(() => {
+        console.log({ collection }, " deleted...");
+    })
+        .catch((err) => console.log({ collection }, " deletion failed: \n", { err }));
+};
+let store;
+const clients = new Map();
+const numbers = new Map();
+const MONGODB_URI = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
+mongoose_1.default.connect(MONGODB_URI).then(() => {
+    store = new wwebjs_mongo_1.MongoStore({ mongoose: mongoose_1.default });
+    io.on("connection", (socket) => {
+        console.log("We are live and connected");
+        console.log(socket.id);
+        socket.on("identify", (data) => __awaiter(void 0, void 0, void 0, function* () {
+            const { number } = data;
+            console.log({ number });
+            let client;
+            if (numbers.has(number)) {
+                client = numbers.get(number);
+            }
+            else {
+                client = new whatsapp_web_js_1.Client({
+                    authStrategy: new whatsapp_web_js_1.RemoteAuth({
+                        store: store,
+                        clientId: "whatsapp",
+                        backupSyncIntervalMs: 300000,
+                    }),
+                });
+                client.initialize();
+                numbers.set(number, client);
+            }
+            clients.set(socket.id, client);
+            client.on("qr", (qr) => {
+                io.to(socket.id).emit("qr", qr);
+            });
+            client.on("ready", () => {
+                console.log("client ready");
+                io.to(socket.id).emit("ready", true);
+            });
+            socket.on("send_messages", (data) => __awaiter(void 0, void 0, void 0, function* () {
+                const { numbers: messageNumbers, messages } = data;
+                new messageSender_1.MessageSender(client).sendMessages({ messages, numbers: messageNumbers });
+            }));
+        }));
+        socket.on("del_all", () => delCollection({ collection: "sessions", mongoose: mongoose_1.default }));
+        socket.on("disconnect", () => {
+            clients.delete(socket.id);
         });
     });
-}));
-app.post("/api/userState", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("getQr");
-    const state = yield client.getState();
-    return res.send({ status: state ? true : false, data: state });
-}));
-client.on("ready", () => {
-    console.log("Client is ready!");
 });
-app.get("/", (_req, res) => {
-    res.send("Hello World!");
+httpServer.listen(PORT, () => {
+    console.log(`Example app listening on port ${PORT}`);
 });
-app.use(express_1.default.json());
-app.listen(PORT, () => console.log(`server? listening on port` + PORT));
-app.get("/api/qr", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(_req.headers);
-    const time = new Date().getTime();
-    let file_exist = fs_1.default.existsSync(f_path);
-    if (!file_exist)
-        return res.send({ status: false, data: "no file" });
-    const result = JSON.parse(fs_1.default.readFileSync(f_path, { encoding: "utf8", flag: "r" }));
-    const delta = time - result.time;
-    if (delta > 30000)
-        return res.send({ status: false, data: "no new qr to scan" });
-    else
-        return res.send({ status: true, data: result });
-}));
-const mennagersNumbers = ["972506655699@c.us", "972509980680@c.us", "972509881787@c.us"];
-const getMessage = (actionLog) => {
-    const IsErrors = actionLog.filter((m) => m.status == "catch error" || m.status == "registretion error")[0];
-    if (IsErrors)
-        return `got some errors\n ${JSON.stringify(IsErrors)}`;
-    return "all good";
-};
-const sendToMennagers = (actionLog, msg) => {
-    const Message = msg !== null && msg !== void 0 ? msg : getMessage(actionLog);
-    mennagersNumbers.forEach((number) => client.sendMessage(number, Message));
-};
-app.post("/api/sendMsgs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("send sms api");
-    let { numbers, msg } = yield req.body;
-    let actionLog = [];
-    let record;
-    let isArrey = Array.isArray(msg);
-    const state = yield client.getState();
-    if (!state)
-        return res.send({ status: false, data: "not connected" });
-    console.log({ state });
-    if (isArrey && msg.length != numbers.length)
-        return res.send({ status: "no", data: "msg arrey != numbers arrey" });
-    for (let i = 0; i <= numbers.length - 1; i++) {
-        let log = ``;
-        let Message = `${isArrey ? msg[i] : msg}`;
-        try {
-            console.log("number: ", numbers[i], " message: ", msg[i]);
-            yield client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered) {
-                if (isRegistered) {
-                    console.log("is registerd !!");
-                    client.sendMessage(`${numbers[i]}@c.us`, Message);
-                    record = {
-                        number: numbers[i],
-                        status: "ok",
-                        row: i,
-                        msg: Message,
-                    };
-                }
-                else {
-                    console.log("is not registerd !!");
-                    log = `***** ${numbers[i]} is not registerd ******`;
-                    record = {
-                        number: numbers[i],
-                        status: "registretion error",
-                        row: i,
-                        msg: log,
-                    };
-                }
-            });
-        }
-        catch (err) {
-            record = {
-                number: numbers[i],
-                status: "catch error",
-                row: i,
-                msg: err,
-            };
-        }
-        actionLog.push(record);
-    }
-    sendToMennagers(actionLog);
-    return res.send(actionLog);
-}));
-const serviceName = "972545940054@c.us";
-client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log({ message });
-    const mm = ` :לקוח ${message._data.notifyName} :שלח  ${message.body} `;
-    console.log({ mm });
-    client.sendMessage(serviceName, mm);
-}));
-console.log((_a = client === null || client === void 0 ? void 0 : client.pupBrowser) === null || _a === void 0 ? void 0 : _a.isConnected);
-if (!((_b = client === null || client === void 0 ? void 0 : client.pupBrowser) === null || _b === void 0 ? void 0 : _b.isConnected))
-    client
-        .initialize()
-        .then(() => {
-        console.log("client initialize ....\n to init in initializ");
-    })
-        .catch((err) => console.log(err));
-module.exports = client;
 //# sourceMappingURL=app.js.map

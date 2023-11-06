@@ -1,9 +1,12 @@
 import express from "express";
-import qrcode from "qrcode-terminal";
+import { createServer } from "http";
 import cors from "cors";
-import { Client, LocalAuth, Message } from "whatsapp-web.js"; //@ts-ignore
-import fs, { writeFileSync } from "fs";
-const f_path = "./" + "lastqr" + ".json";
+import { Server } from "socket.io";
+import { Client, RemoteAuth } from "whatsapp-web.js";
+import { MongoStore } from "wwebjs-mongo";
+import mongoose, { Mongoose } from "mongoose";
+
+import { MessageSender } from "./messageSender";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -12,178 +15,91 @@ app.use(
     origin: "*",
   })
 );
-// const writeFileIfExist = (data: any) => {
-//   if (fs.existsSync(f_path))
-//     fs.writeFileSync(f_path, JSON.stringify(data), {
-//       encoding: "utf8",
-//       flag: "w",
-//     });
-//   else fs.writeFileSync(f_path, JSON.stringify(data), { encoding: "utf8" });
-// };
 
-//let toSend: boolean = true;
-const client = new Client({
-  // session: session,
-  authStrategy: new LocalAuth(),
-
-  puppeteer: {
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-extensions"],
-  },
-});
-
-app.set("trust proxy", 1); // trust first proxy
-
-app.post("/api/getQr", async (_req: express.Request, res: express.Response) => {
-  console.log("getQr");
-  const state = await client.getState();
-  console.log({ state });
-  if (state) return res.send({ status: true, data: "client connected" });
-  return client.on("qr", (qr: any) => {
-    qrcode.generate(qr, { small: true }, (qrcode) => {
-      console.log(qrcode);
-      if (qr) return res.send({ status: false, data: qr });
-      else return res.send({ status: true, data: "client connected" });
-      // const time = new Date().getTime();
-      // writeFileIfExist({ time: time, qr: qrcode });
-    });
+app.get("/", (_req, res) => {
+  res.status(200).send({
+    success: true,
+    message: "welcome to the beginning of greatness",
   });
 });
-app.post("/api/userState", async (_req: express.Request, res: express.Response) => {
-  console.log("getQr");
-  const state = await client.getState();
-  return res.send({ status: state ? true : false, data: state });
+
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
 });
-// client.on("", (message) => console.log({ message }));
-
-client.on("ready", () => {
-  // toSend = true;
-  console.log("Client is ready!");
-  // const time = new Date().getTime();
-  // writeFileIfExist({ time: time, qr: "ready" });
-});
-//npm i --save-dev @types/node
-// ******************************** SERVER INIT **************************************//
-app.get("/", (_req: any, res: { send: (arg0: string) => void }): void => {
-  res.send("Hello World!");
-});
-
-app.use(express.json());
-app.listen(PORT, () => console.log(`server? listening on port` + PORT));
-//******************************  main sript  *************************************/
-
-app.get("/api/qr", async (_req, res) => {
-  console.log(_req.headers);
-  const time = new Date().getTime();
-  let file_exist = fs.existsSync(f_path);
-  if (!file_exist) return res.send({ status: false, data: "no file" });
-  const result = JSON.parse(fs.readFileSync(f_path, { encoding: "utf8", flag: "r" }));
-  const delta = time - result.time;
-  if (delta > 30000) return res.send({ status: false, data: "no new qr to scan" });
-  else return res.send({ status: true, data: result });
-});
-
-const mennagersNumbers = ["972506655699@c.us", "972509980680@c.us", "972509881787@c.us"];
-
-interface msgObj {
-  number: number;
-  status: string;
-  row: number;
-  msg: any;
-}
-
-const getMessage = (actionLog: msgObj[]) => {
-  const IsErrors = actionLog.filter((m) => m.status == "catch error" || m.status == "registretion error")[0];
-  if (IsErrors) return `got some errors\n ${JSON.stringify(IsErrors)}`;
-  return "all good";
-};
-
-const sendToMennagers = (actionLog: msgObj[], msg?: string) => {
-  const Message = msg ?? getMessage(actionLog);
-  mennagersNumbers.forEach((number) => client.sendMessage(number, Message));
-};
-
-app.post(
-  "/api/sendMsgs",
-  async (
-    req: {
-      body: PromiseLike<{ numbers: any; msg: any }> | { numbers: any; msg: any };
-    },
-    res: { send: (arg0: unknown) => void }
-  ) => {
-    console.log("send sms api");
-    let { numbers, msg } = await req.body;
-    //console.log({ numbers, msg }, typeof numbers, typeof msg);
-    let actionLog: any[] = [];
-    let record: any;
-    let isArrey: boolean = Array.isArray(msg);
-
-    const state = await client.getState();
-    if (!state) return res.send({ status: false, data: "not connected" });
-    console.log({ state });
-
-    if (isArrey && msg.length != numbers.length) return res.send({ status: "no", data: "msg arrey != numbers arrey" });
-
-    for (let i = 0; i <= numbers.length - 1; i++) {
-      let log = ``;
-      let Message = `${isArrey ? msg[i] : msg}`;
-      try {
-        console.log("number: ", numbers[i], " message: ", msg[i]);
-        await client.isRegisteredUser(`${numbers[i]}@c.us`).then(function (isRegistered: any) {
-          if (isRegistered) {
-            console.log("is registerd !!");
-            client.sendMessage(`${numbers[i]}@c.us`, Message);
-            record = {
-              number: numbers[i],
-              status: "ok",
-              row: i,
-              msg: Message,
-            };
-          } else {
-            console.log("is not registerd !!");
-            log = `***** ${numbers[i]} is not registerd ******`;
-            record = {
-              number: numbers[i],
-              status: "registretion error",
-              row: i,
-              msg: log,
-            };
-          }
-        });
-      } catch (err) {
-        record = {
-          number: numbers[i],
-          status: "catch error",
-          row: i,
-          msg: err,
-        };
-      }
-      actionLog.push(record);
-    }
-    sendToMennagers(actionLog);
-    return res.send(actionLog);
-
-    //console.log("conenction stat on end == true", x?.pupBrowser?._connection, client.pupBrowser?.isConnected);
-  }
-);
-
-const serviceName = "972545940054@c.us";
-
-client.on("message", async (message: Message | any) => {
-  console.log({ message });
-  const mm = ` :לקוח ${message._data.notifyName} :שלח  ${message.body} `;
-  console.log({ mm });
-  client.sendMessage(serviceName, mm);
-});
-console.log(client?.pupBrowser?.isConnected);
-
-if (!client?.pupBrowser?.isConnected)
-  client
-    .initialize()
+const delCollection = ({ collection, mongoose }: { collection: "sessions" | "session"; mongoose: Mongoose }) => {
+  mongoose.connection.db
+    .collection(collection)
+    .deleteMany({})
     .then(() => {
-      // toSend = true;
-      console.log("client initialize ....\n to init in initializ");
+      console.log({ collection }, " deleted...");
     })
-    .catch((err: any) => console.log(err));
+    .catch((err) => console.log({ collection }, " deletion failed: \n", { err }));
+};
 
-module.exports = client;
+let store: typeof MongoStore;
+const clients = new Map();
+const numbers = new Map();
+const MONGODB_URI = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
+
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    store = new MongoStore({ mongoose: mongoose });
+
+    io.on("connection", (socket) => {
+      console.log("We are live and connected");
+      console.log(socket.id);
+
+      socket.on("identify", async (data) => {
+        const { number } = data;
+        console.log({ number });
+
+        let client: Client;
+        if (numbers.has(number)) {
+          client = numbers.get(number);
+        } else {
+          client = new Client({
+            authStrategy: new RemoteAuth({
+              store: store,
+              clientId: "whatsapp",
+              backupSyncIntervalMs: 300000,
+            }),
+          });
+
+          client.initialize().catch((err) => console.log("client init..", { err }));
+
+          numbers.set(number, client);
+        }
+
+        clients.set(socket.id, client);
+
+        client.on("qr", (qr) => {
+          // Generate and send QR code to client
+          io.to(socket.id).emit("qr", qr);
+        });
+
+        client.on("ready", () => {
+          console.log("client ready");
+          io.to(socket.id).emit("ready", true);
+        });
+
+        socket.on("send_messages", async (data) => {
+          const { numbers: messageNumbers, messages } = data;
+          new MessageSender(client).sendMessages({ messages, numbers: messageNumbers });
+        });
+      });
+      socket.on("del_all", () => delCollection({ collection: "sessions", mongoose }));
+      socket.on("disconnect", () => {
+        clients.delete(socket.id);
+      });
+    });
+  })
+  .catch((err) => console.log("mongo init error", { err }));
+
+httpServer.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}`);
+});
