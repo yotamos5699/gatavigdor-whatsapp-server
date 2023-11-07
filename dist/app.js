@@ -22,9 +22,12 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const messageSender_1 = require("./messageSender");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
-app.use((0, cors_1.default)({
+const corsConfig = {
     origin: "*",
-}));
+    methods: ["GET", "POST"],
+    credentials: true,
+};
+app.use((0, cors_1.default)(Object.assign({}, corsConfig)));
 app.get("/", (_req, res) => {
     res.status(200).send({
         success: true,
@@ -33,10 +36,7 @@ app.get("/", (_req, res) => {
 });
 const httpServer = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(httpServer, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"],
-    },
+    cors: Object.assign({}, corsConfig),
 });
 const delCollection = ({ collection, mongoose }) => {
     mongoose.connection.db
@@ -51,7 +51,9 @@ let store;
 const clients = new Map();
 const numbers = new Map();
 const MONGODB_URI = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
-mongoose_1.default.connect(MONGODB_URI).then(() => {
+mongoose_1.default
+    .connect(MONGODB_URI)
+    .then(() => {
     store = new wwebjs_mongo_1.MongoStore({ mongoose: mongoose_1.default });
     io.on("connection", (socket) => {
         console.log("We are live and connected");
@@ -71,7 +73,7 @@ mongoose_1.default.connect(MONGODB_URI).then(() => {
                         backupSyncIntervalMs: 300000,
                     }),
                 });
-                client.initialize();
+                client.initialize().catch((err) => console.log("client init..", { err }));
                 numbers.set(number, client);
             }
             clients.set(socket.id, client);
@@ -92,7 +94,8 @@ mongoose_1.default.connect(MONGODB_URI).then(() => {
             clients.delete(socket.id);
         });
     });
-});
+})
+    .catch((err) => console.log("mongo init error", { err }));
 httpServer.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
 });

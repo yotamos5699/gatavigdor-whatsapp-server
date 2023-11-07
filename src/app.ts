@@ -10,9 +10,15 @@ import { MessageSender } from "./messageSender";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const corsConfig = {
+  origin: "*",
+  methods: ["GET", "POST"],
+  credentials: true,
+};
 app.use(
   cors({
-    origin: "*",
+    ...corsConfig,
   })
 );
 
@@ -26,8 +32,7 @@ app.get("/", (_req, res) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
+    ...corsConfig,
   },
 });
 const delCollection = ({ collection, mongoose }: { collection: "sessions" | "session"; mongoose: Mongoose }) => {
