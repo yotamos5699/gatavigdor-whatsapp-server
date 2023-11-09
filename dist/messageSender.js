@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MessageSender = void 0;
+exports.MessageSender = exports.format_num = void 0;
 const format_num = (num) => `${num}@c.us`;
+exports.format_num = format_num;
 class MessageSender {
     constructor(client) {
         this.client = client;
@@ -20,7 +21,7 @@ class MessageSender {
             const messagesRecords = [];
             const messagesRequests = [];
             for (let i = 0; i <= numbers.length - 1; i++) {
-                let number = format_num(numbers[i]);
+                let number = (0, exports.format_num)(numbers[i]);
                 messagesRequests.push(this.client
                     .sendMessage(number, messages[i])
                     .then(() => messagesRecords.push({ msg: messages[i], number: numbers[i], row: i, status: "ok", data: null }))
@@ -39,7 +40,7 @@ class MessageSender {
         });
     }
     sendToMennagers(messages, mennagers) {
-        mennagers.forEach((mennager, i) => this.client.sendMessage(format_num(mennager.number), messages[i]));
+        mennagers.forEach((mennager, i) => this.client.sendMessage((0, exports.format_num)(mennager.number), messages[i]));
     }
     state() {
         return __awaiter(this, void 0, void 0, function* () {

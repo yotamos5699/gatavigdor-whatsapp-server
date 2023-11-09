@@ -17,8 +17,6 @@ const http_1 = require("http");
 const cors_1 = __importDefault(require("cors"));
 const socket_io_1 = require("socket.io");
 const whatsapp_web_js_1 = require("whatsapp-web.js");
-const wwebjs_mongo_1 = require("wwebjs-mongo");
-const mongoose_1 = __importDefault(require("mongoose"));
 const messageSender_1 = require("./messageSender");
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
@@ -38,65 +36,82 @@ const httpServer = (0, http_1.createServer)(app);
 const io = new socket_io_1.Server(httpServer, {
     cors: Object.assign({}, corsConfig),
 });
-const delCollection = ({ collection, mongoose }) => {
-    mongoose.connection.db
-        .collection(collection)
-        .deleteMany({})
-        .then(() => {
-        console.log({ collection }, " deleted...");
-    })
-        .catch((err) => console.log({ collection }, " deletion failed: \n", { err }));
-};
-let store;
-const clients = new Map();
-const numbers = new Map();
-const MONGODB_URI = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
-mongoose_1.default
-    .connect(MONGODB_URI)
-    .then(() => {
-    store = new wwebjs_mongo_1.MongoStore({ mongoose: mongoose_1.default });
-    io.on("connection", (socket) => {
-        console.log("We are live and connected");
-        console.log(socket.id);
-        socket.on("identify", (data) => __awaiter(void 0, void 0, void 0, function* () {
-            const { number } = data;
-            console.log({ number });
-            let client;
-            if (numbers.has(number)) {
-                client = numbers.get(number);
-            }
-            else {
-                client = new whatsapp_web_js_1.Client({
-                    authStrategy: new whatsapp_web_js_1.RemoteAuth({
-                        store: store,
-                        clientId: "whatsapp",
-                        backupSyncIntervalMs: 300000,
-                    }),
-                });
-                client.initialize().catch((err) => console.log("client init..", { err }));
-                numbers.set(number, client);
-            }
-            clients.set(socket.id, client);
-            client.on("qr", (qr) => {
-                io.to(socket.id).emit("qr", qr);
-            });
-            client.on("ready", () => {
-                console.log("client ready");
-                io.to(socket.id).emit("ready", true);
-            });
-            socket.on("send_messages", (data) => __awaiter(void 0, void 0, void 0, function* () {
-                const { numbers: messageNumbers, messages } = data;
-                new messageSender_1.MessageSender(client).sendMessages({ messages, numbers: messageNumbers });
-            }));
-        }));
-        socket.on("del_all", () => delCollection({ collection: "sessions", mongoose: mongoose_1.default }));
-        socket.on("disconnect", () => {
-            clients.delete(socket.id);
+let clients = new Map();
+const setClient = (id, socket) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    console.log("client number", { id });
+    if (!id)
+        return console.log("no client id in args:", { id });
+    let client = (_a = clients === null || clients === void 0 ? void 0 : clients.get(id)) === null || _a === void 0 ? void 0 : _a.client;
+    if (!client) {
+        console.log("setting new cllient");
+        client = new whatsapp_web_js_1.Client({
+            puppeteer: { headless: true },
+            authStrategy: new whatsapp_web_js_1.LocalAuth({ clientId: id }),
         });
+    }
+    else {
+        console.log("client exists", clients);
+        const connected = yield client.getState();
+        console.log({ connected });
+        if (connected === "CONNECTED") {
+            io.to(socket.id).emit("ready", true);
+            return;
+        }
+        else
+            client.resetState();
+    }
+    try {
+        client.on("qr", (qr) => {
+            console.log("sending qr to client");
+            socket.emit("qr", qr);
+        });
+        client.on("ready", () => {
+            console.log("client ready");
+            io.to(socket.id).emit("ready", true);
+        });
+        client
+            .initialize()
+            .then(() => {
+            console.log("client initialized");
+        })
+            .catch((err) => console.log("initialized error", { err }));
+        clients.set(id, { client: client, socket: socket });
+    }
+    catch (e) {
+        console.log("in set config");
+        return;
+    }
+});
+io.on("connection", (socket) => {
+    var _a;
+    const number = (_a = socket.handshake.query.number) === null || _a === void 0 ? void 0 : _a.toString();
+    socket.on("disconnect", () => {
+        console.log("disconnected:", { number });
+        socket.disconnect();
     });
-})
-    .catch((err) => console.log("mongo init error", { err }));
+    socket.on("remove_connection", (number) => {
+        console.log("removing number from list: ", { number }, clients.entries);
+        clients.delete(number);
+    });
+    if (!number)
+        return;
+    setClient(number, socket);
+    console.log("total connections:", io.engine.clientsCount, "\n", "total clients:", clients.keys.length);
+    socket.on("send_messages", (data) => {
+        var _a;
+        const { numbers: messageNumbers, messages } = data;
+        const msgsClient = (_a = clients.get(number !== null && number !== void 0 ? number : "")) === null || _a === void 0 ? void 0 : _a.client;
+        if (!msgsClient)
+            return console.log("no sending messages client found!!");
+        new messageSender_1.MessageSender(msgsClient).sendMessages({ messages, numbers: messageNumbers });
+    });
+});
 httpServer.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
+});
+io.use((socket, next) => {
+    console.log(`New connection from ${socket.id}`);
+    next();
 });
 //# sourceMappingURL=app.js.map

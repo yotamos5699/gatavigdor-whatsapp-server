@@ -12,7 +12,7 @@ type Mennager = {
   job: "admin" | "mennager";
 };
 
-const format_num = (num: string) => `${num}@c.us`;
+export const format_num = (num: string) => `${num}@c.us`;
 export class MessageSender {
   private client: Client;
 
