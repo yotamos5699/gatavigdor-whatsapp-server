@@ -1,5 +1,8 @@
 // messageSender.ts
 import { Client } from "whatsapp-web.js";
+import { W_a_Client } from "./client";
+// import { Socket } from "socket.io";
+import { Io_ } from "./app";
 type MessageRecord = {
   number: string;
   status: "ok" | "catch error" | "registretion error";
@@ -13,53 +16,43 @@ type Mennager = {
 };
 
 export const format_num = (num: string) => `${num}@c.us`;
-export class MessageSender {
-  private client: Client;
 
-  constructor(client: Client) {
-    this.client = client;
-  }
+export const openMessagesEvent = (waClient: W_a_Client, io: Io_) => {
+  console.log("openning MessagesEvents for number:", waClient.id);
+  io.on("send_messages", (data) => {
+    console.log("send messages");
+    sendMessages({ data, client: waClient.client });
+  });
+};
 
-  public async sendMessages({ numbers, messages }: { numbers: string[]; messages: string[] }) {
-    const messagesRecords: MessageRecord[] = [];
-    const messagesRequests = [];
-    for (let i = 0; i <= numbers.length - 1; i++) {
-      let number = format_num(numbers[i]);
-      messagesRequests.push(
-        this.client
-          .sendMessage(number, messages[i])
-          .then(() => messagesRecords.push({ msg: messages[i], number: numbers[i], row: i, status: "ok", data: null }))
-          .catch((error) =>
-            this.client.isRegisteredUser(number).then((reg) => {
-              messagesRecords.push({
-                msg: messages[i],
-                number: numbers[i],
-                row: i,
-                status: reg ? "catch error" : "registretion error",
-                data: reg ? null : error,
-              });
-            })
-          )
-      );
-    }
-    const results = await Promise.allSettled(messagesRequests);
-    return results;
+type sendMessagesType = { data: { numbers: string[]; messages: string[] }; client: Client };
+export async function sendMessages({ data, client }: sendMessagesType) {
+  const { messages, numbers } = data;
+  console.log({ data });
+  const messagesRecords: MessageRecord[] = [];
+  const messagesRequests = [];
+  for (let i = 0; i <= numbers.length - 1; i++) {
+    let number = format_num(numbers[i]);
+    messagesRequests.push(
+      client
+        .sendMessage(number, messages[i])
+        .then(() => messagesRecords.push({ msg: messages[i], number: numbers[i], row: i, status: "ok", data: null }))
+        .catch((error) =>
+          client.isRegisteredUser(number).then((reg) => {
+            messagesRecords.push({
+              msg: messages[i],
+              number: numbers[i],
+              row: i,
+              status: reg ? "catch error" : "registretion error",
+              data: reg ? null : error,
+            });
+          })
+        )
+    );
   }
-  public sendToMennagers(messages: string[], mennagers: Mennager[]) {
-    mennagers.forEach((mennager, i) => this.client.sendMessage(format_num(mennager.number), messages[i]));
-  }
-  public async state() {
-    return await this.client.getState();
-  }
+  const results = await Promise.allSettled(messagesRequests);
+  return results;
 }
-
-// const getMessage = (actionLog: msgObj[]) => {
-//     const IsErrors = actionLog.filter((m) => m.status == "catch error" || m.status == "registretion error")[0];
-//     if (IsErrors) return `got some errors\n ${JSON.stringify(IsErrors)}`;
-//     return "all good";
-//   };
-
-//   const sendToMennagers = (actionLog: msgObj[], msg?: string) => {
-//     const Message = msg ?? getMessage(actionLog);
-//     mennagersNumbers.forEach((number) => client.sendMessage(number, Message));
-//   };
+export function sendToMennagers(messages: string[], mennagers: Mennager[], client: Client) {
+  mennagers.forEach((mennager, i) => client.sendMessage(format_num(mennager.number), messages[i]));
+}

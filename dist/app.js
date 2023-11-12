@@ -16,10 +16,15 @@ const express_1 = __importDefault(require("express"));
 const http_1 = require("http");
 const cors_1 = __importDefault(require("cors"));
 const socket_io_1 = require("socket.io");
-const whatsapp_web_js_1 = require("whatsapp-web.js");
+const wwebjs_mongo_1 = require("wwebjs-mongo");
+const mongoose_1 = __importDefault(require("mongoose"));
+const client_1 = require("./client");
 const messageSender_1 = require("./messageSender");
+const mongoUri = "mongodb+srv://yotamos:linux6926@cluster0.zj6wiy3.mongodb.net/mtxlog?retryWrites=true&w=majority";
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
+let store;
+mongoose_1.default.connect(mongoUri).then((store = new wwebjs_mongo_1.MongoStore({ mongoose: mongoose_1.default })));
 const corsConfig = {
     origin: "*",
     methods: ["GET", "POST"],
@@ -37,81 +42,56 @@ const io = new socket_io_1.Server(httpServer, {
     cors: Object.assign({}, corsConfig),
 });
 let clients = new Map();
-const setClient = (id, socket) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+const setClient = (id) => __awaiter(void 0, void 0, void 0, function* () {
     console.log("client number", { id });
-    if (!id)
+    if (!id || !store)
         return console.log("no client id in args:", { id });
-    let client = (_a = clients === null || clients === void 0 ? void 0 : clients.get(id)) === null || _a === void 0 ? void 0 : _a.client;
+    console.log("clients:", clients.entries);
+    let client = clients === null || clients === void 0 ? void 0 : clients.get(id);
     if (!client) {
         console.log("setting new cllient");
-        client = new whatsapp_web_js_1.Client({
-            puppeteer: { headless: true },
-            authStrategy: new whatsapp_web_js_1.LocalAuth({ clientId: id }),
-        });
+        client = new client_1.W_a_Client(store, id);
+        client.listen(io);
+        clients.set(id, client);
     }
-    else {
-        console.log("client exists", clients);
-        const connected = yield client.getState();
-        console.log({ connected });
-        if (connected === "CONNECTED") {
-            io.to(socket.id).emit("ready", true);
-            return;
-        }
-        else
-            client.resetState();
-    }
-    try {
-        client.on("qr", (qr) => {
-            console.log("sending qr to client");
-            socket.emit("qr", qr);
-        });
-        client.on("ready", () => {
-            console.log("client ready");
-            io.to(socket.id).emit("ready", true);
-        });
-        client
-            .initialize()
-            .then(() => {
-            console.log("client initialized");
-        })
-            .catch((err) => console.log("initialized error", { err }));
-        clients.set(id, { client: client, socket: socket });
-    }
-    catch (e) {
-        console.log("in set config");
-        return;
-    }
+    else
+        client.stabelizeConnection(io);
+    console.log("in set config");
 });
+const delete_connection = (number, socket) => {
+    var _a;
+    if (!number)
+        return;
+    if (number && clients.get(number)) {
+        (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.destroy(clients, socket);
+    }
+    else
+        socket.disconnect();
+};
 io.on("connection", (socket) => {
     var _a;
     const number = (_a = socket.handshake.query.number) === null || _a === void 0 ? void 0 : _a.toString();
+    console.log("client connected:", { number });
+    socket.on("delete_connection", (number) => {
+        console.log("deleting connection..", { number });
+        delete_connection(number, socket);
+    });
     socket.on("disconnect", () => {
-        console.log("disconnected:", { number });
+        console.log("disconnecting:", { number });
         socket.disconnect();
     });
-    socket.on("remove_connection", (number) => {
-        console.log("removing number from list: ", { number }, clients.entries);
-        clients.delete(number);
-    });
     if (!number)
-        return;
-    setClient(number, socket);
-    console.log("total connections:", io.engine.clientsCount, "\n", "total clients:", clients.keys.length);
+        return console.log("no number provided");
+    socket.join(number);
     socket.on("send_messages", (data) => {
         var _a;
-        const { numbers: messageNumbers, messages } = data;
-        const msgsClient = (_a = clients.get(number !== null && number !== void 0 ? number : "")) === null || _a === void 0 ? void 0 : _a.client;
-        if (!msgsClient)
-            return console.log("no sending messages client found!!");
-        new messageSender_1.MessageSender(msgsClient).sendMessages({ messages, numbers: messageNumbers });
+        const client = (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.client;
+        client && (0, messageSender_1.sendMessages)({ data, client });
     });
+    socket.on("remove_connection", (number) => { var _a; return (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.destroy(clients, socket); });
+    socket.on("get_session", () => setClient(number));
 });
 httpServer.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
-});
-io.use((socket, next) => {
-    console.log(`New connection from ${socket.id}`);
-    next();
 });
 //# sourceMappingURL=app.js.map
