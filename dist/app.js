@@ -60,36 +60,41 @@ const setClient = (id) => __awaiter(void 0, void 0, void 0, function* () {
 });
 const delete_connection = (number, socket) => {
     var _a;
-    if (!number)
-        return;
-    if (number && clients.get(number)) {
+    const client_ = clients.get(number);
+    console.log({ number, client_ });
+    if (number && client_) {
         (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.destroy(clients, socket);
     }
     else
         socket.disconnect();
+    console.log("clients list length:", clients.entries.length);
 };
 io.on("connection", (socket) => {
     var _a;
     const number = (_a = socket.handshake.query.number) === null || _a === void 0 ? void 0 : _a.toString();
     console.log("client connected:", { number });
-    socket.on("delete_connection", (number) => {
-        console.log("deleting connection..", { number });
-        delete_connection(number, socket);
-    });
     socket.on("disconnect", () => {
         console.log("disconnecting:", { number });
         socket.disconnect();
     });
-    if (!number)
+    if (!number || !store)
         return console.log("no number provided");
     socket.join(number);
     socket.on("send_messages", (data) => {
         var _a;
         const client = (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.client;
-        client && (0, messageSender_1.sendMessages)({ data, client });
+        if (client) {
+            (0, messageSender_1.sendMessages)({ data, client }).then((res) => io.to(number).emit("messages_records", res));
+        }
     });
     socket.on("remove_connection", (number) => { var _a; return (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.destroy(clients, socket); });
+    console.log({ store });
     socket.on("get_session", () => setClient(number));
+    socket.on("delete_connection", (number) => {
+        console.log("deleting connection..", { number });
+        delete_connection(number, socket);
+    });
+    console.log("clients list length in io:", clients.entries.length);
 });
 httpServer.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);

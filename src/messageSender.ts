@@ -50,8 +50,8 @@ export async function sendMessages({ data, client }: sendMessagesType) {
         )
     );
   }
-  const results = await Promise.allSettled(messagesRequests);
-  return results;
+  await Promise.allSettled(messagesRequests);
+  return messagesRecords;
 }
 export function sendToMennagers(messages: string[], mennagers: Mennager[], client: Client) {
   mennagers.forEach((mennager, i) => client.sendMessage(format_num(mennager.number), messages[i]));

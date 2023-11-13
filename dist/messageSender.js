@@ -41,8 +41,8 @@ function sendMessages({ data, client }) {
                 });
             })));
         }
-        const results = yield Promise.allSettled(messagesRequests);
-        return results;
+        yield Promise.allSettled(messagesRequests);
+        return messagesRecords;
     });
 }
 exports.sendMessages = sendMessages;

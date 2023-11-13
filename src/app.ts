@@ -64,10 +64,13 @@ const setClient = async (id: string | undefined) => {
 
 const delete_connection = (number: string, socket: Socket) => {
   // console.log("disconnected:", { number });
-  if (!number) return;
-  if (number && clients.get(number)) {
+  const client_ = clients.get(number);
+  console.log({ number, client_ });
+  if (number && client_) {
     clients.get(number)?.destroy(clients, socket);
   } else socket.disconnect();
+
+  console.log("clients list length:", clients.entries.length);
 };
 
 io.on("connection", (socket) => {
@@ -78,27 +81,32 @@ io.on("connection", (socket) => {
 
   // });
 
-  socket.on("delete_connection", (number) => {
-    console.log("deleting connection..", { number });
-    delete_connection(number, socket);
-  });
   socket.on("disconnect", () => {
     console.log("disconnecting:", { number });
     // delete_connection(number, socket);
     socket.disconnect();
   });
 
-  if (!number) return console.log("no number provided");
+  if (!number || !store) return console.log("no number provided");
   socket.join(number);
   socket.on("send_messages", (data) => {
     const client = clients.get(number)?.client;
 
-    client && sendMessages({ data, client });
+    if (client) {
+      sendMessages({ data, client }).then((res) => io.to(number).emit("messages_records", res));
+    }
   });
   socket.on("remove_connection", (number) => clients.get(number)?.destroy(clients, socket));
+  console.log({ store });
   socket.on("get_session", () => setClient(number));
 
   // Logger({ clients, io });
+  socket.on("delete_connection", (number) => {
+    console.log("deleting connection..", { number });
+    delete_connection(number, socket);
+  });
+
+  console.log("clients list length in io:", clients.entries.length);
 });
 
 httpServer.listen(PORT, () => {

@@ -19,6 +19,7 @@ class W_a_Client {
             puppeteer: { headless: true },
             authStrategy: new whatsapp_web_js_1.RemoteAuth({ clientId: id, store: store, backupSyncIntervalMs: 120000 }),
         });
+        this.store = store;
         this.id = id;
     }
     sendToMennagers(messages, mennagers) {
@@ -52,18 +53,15 @@ class W_a_Client {
         });
         this.client
             .initialize()
-            .then(() => {
-            console.log("client initialized", this.client);
-        })
+            .then(() => console.log("client initialized"))
             .catch((err) => console.log("initialized error", { err }));
-    }
-    handleErrors() {
-        console.log("handle errors function in client class");
     }
     stabelizeConnection(io) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("client exists \nclient:");
+            console.log("client exists ");
             try {
+                if (!this.store)
+                    return;
                 const connected = yield this.client.getState();
                 console.log({ connected });
                 if (connected === "CONNECTED") {
@@ -71,13 +69,13 @@ class W_a_Client {
                     io.to(this.id).emit("ready", true);
                     return;
                 }
-                else
+                else if (connected)
                     this.client.resetState();
             }
             catch (stabelize_error) {
                 console.log({ stabelize_error });
-                this.client.initialize().catch((error) => console.log("stabelize connection error:", { error }));
             }
+            this.listen(io);
         });
     }
 }
