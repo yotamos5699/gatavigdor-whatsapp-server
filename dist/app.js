@@ -80,17 +80,19 @@ io.on("connection", (socket) => {
     if (!number || !store)
         return console.log("no number provided");
     socket.join(number);
-    socket.on("send_messages", (data) => {
-        var _a;
-        const client = (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.client;
-        console.log("send messages:", { client });
-        if (client) {
+    socket.on("send_messages", (data) => __awaiter(void 0, void 0, void 0, function* () {
+        var _b;
+        if (number) {
+            yield setClient(number);
+            const client = (_b = clients.get(number)) === null || _b === void 0 ? void 0 : _b.client;
+            if (!client)
+                return;
             (0, messageSender_1.sendMessages)({ data, client }).then((res) => {
                 console.log({ res });
                 io.to(number).emit("messages_records", res);
             });
         }
-    });
+    }));
     socket.on("remove_connection", (number) => { var _a; return (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.destroy(clients, socket); });
     console.log({ store });
     socket.on("get_session", () => setClient(number));

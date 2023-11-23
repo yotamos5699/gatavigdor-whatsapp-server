@@ -89,10 +89,12 @@ io.on("connection", (socket) => {
 
   if (!number || !store) return console.log("no number provided");
   socket.join(number);
-  socket.on("send_messages", (data) => {
-    const client = clients.get(number)?.client;
-    console.log("send messages:", { client });
-    if (client) {
+  socket.on("send_messages", async (data) => {
+    // console.log("send messages:", { client });
+    if (number) {
+      await setClient(number);
+      const client = clients.get(number)?.client;
+      if (!client) return;
       sendMessages({ data, client }).then((res) => {
         console.log({ res });
         io.to(number).emit("messages_records", res);
