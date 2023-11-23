@@ -42,6 +42,7 @@ function sendMessages({ data, client }) {
             })));
         }
         yield Promise.allSettled(messagesRequests);
+        console.log({ messagesRecords });
         return messagesRecords;
     });
 }

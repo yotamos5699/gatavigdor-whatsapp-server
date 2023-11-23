@@ -51,6 +51,7 @@ export async function sendMessages({ data, client }: sendMessagesType) {
     );
   }
   await Promise.allSettled(messagesRequests);
+  console.log({ messagesRecords });
   return messagesRecords;
 }
 export function sendToMennagers(messages: string[], mennagers: Mennager[], client: Client) {

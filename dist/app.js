@@ -83,8 +83,12 @@ io.on("connection", (socket) => {
     socket.on("send_messages", (data) => {
         var _a;
         const client = (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.client;
+        console.log("send messages:", { client });
         if (client) {
-            (0, messageSender_1.sendMessages)({ data, client }).then((res) => io.to(number).emit("messages_records", res));
+            (0, messageSender_1.sendMessages)({ data, client }).then((res) => {
+                console.log({ res });
+                io.to(number).emit("messages_records", res);
+            });
         }
     });
     socket.on("remove_connection", (number) => { var _a; return (_a = clients.get(number)) === null || _a === void 0 ? void 0 : _a.destroy(clients, socket); });

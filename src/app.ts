@@ -91,9 +91,12 @@ io.on("connection", (socket) => {
   socket.join(number);
   socket.on("send_messages", (data) => {
     const client = clients.get(number)?.client;
-
+    console.log("send messages:", { client });
     if (client) {
-      sendMessages({ data, client }).then((res) => io.to(number).emit("messages_records", res));
+      sendMessages({ data, client }).then((res) => {
+        console.log({ res });
+        io.to(number).emit("messages_records", res);
+      });
     }
   });
   socket.on("remove_connection", (number) => clients.get(number)?.destroy(clients, socket));
