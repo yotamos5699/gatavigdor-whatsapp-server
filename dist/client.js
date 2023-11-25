@@ -17,7 +17,9 @@ class W_a_Client {
     constructor(store, id) {
         this.client = new whatsapp_web_js_1.Client({
             puppeteer: { headless: true },
-            authStrategy: new whatsapp_web_js_1.RemoteAuth({ clientId: id, store: store, backupSyncIntervalMs: 120000 }),
+            authStrategy: new whatsapp_web_js_1.LocalAuth({
+                clientId: id,
+            }),
         });
         this.store = store;
         this.id = id;

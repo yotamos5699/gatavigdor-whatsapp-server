@@ -1,5 +1,11 @@
 import { Socket } from "socket.io";
-import { Client, RemoteAuth, Store } from "whatsapp-web.js";
+
+import {
+  Client,
+  // RemoteAuth,
+  LocalAuth,
+  Store,
+} from "whatsapp-web.js";
 // import { openMessagesEvent } from "./messageSender";
 import { Io_ } from "./app";
 
@@ -17,7 +23,11 @@ export class W_a_Client {
   constructor(store: Store, id: string) {
     this.client = new Client({
       puppeteer: { headless: true },
-      authStrategy: new RemoteAuth({ clientId: id, store: store, backupSyncIntervalMs: 120000 }),
+      authStrategy: new LocalAuth({
+        clientId: id,
+        //  store: store,
+        // backupSyncIntervalMs: 120000
+      }),
     });
     this.store = store;
     this.id = id;
