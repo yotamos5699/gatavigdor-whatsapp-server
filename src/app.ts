@@ -9,8 +9,9 @@ import { Client, LocalAuth } from "whatsapp-web.js";
 import qrcode from "qrcode-terminal";
 import { parse } from "url";
 import { WebSocketServer, WebSocket } from "ws";
-import { InitData, LogType, SendingStrategy } from "./types";
-import { editMessageVarient, normelizeNumbers } from "./helper";
+import { delay, editMessageVarient, messageParser } from "./helper";
+import { handleListener, handleUiContacts, secondMessage, strat } from "./handlers";
+import { Lead, SendingStrategy } from "./types";
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -18,64 +19,8 @@ const wss = new WebSocketServer({ port: 8080 });
 //   "44348688614eb9316d739e0d40d07e015dcaeff3c9ff06abdf30d00530f152aa3c71dfe9b361cb9592d073c5e46ed3edb8b9c88cc024c2eadff945ab64dc7954";
 // const password = "123";
 
-const baseUrl = "https://script.google.com/macros/s/AKfycbylQUU_1mh1ehP0fSRhmW364TQL5Q5eIX8aSnH3F5R-hls9hFWdVMF4sFls6zovfpFx/exec?";
 let actionCounter = 0;
 
-const logAction = ({
-  type,
-  number,
-  name,
-  message,
-  status,
-  updates,
-}: {
-  type: LogType;
-  number: string;
-  name: string;
-  message: string;
-  status: "ok" | "error";
-  updates: number;
-}) => {
-  const date = new Date().toISOString();
-  const id = crypto.randomUUID().slice(0, 10);
-  actionCounter++;
-  fetch(`${baseUrl}type=log&row=${encodeURIComponent(JSON.stringify([id, date, type, number, name, message, status]))}&updates=${updates}`);
-};
-const URL_LISTS =
-  "https://script.google.com/macros/s/AKfycbx-6JLVMVuWote6N0vtiCLl_zgtbdDGfP6W--KoLcT8X5w6dr69-5BUEAQUaMcl1qUo/exec?type=lists";
-
-let firstMsg: string[] = [];
-let secondMessage: string[] = [];
-let strat: SendingStrategy;
-const getInitData = async () => {
-  return fetch(URL_LISTS)
-    .then((res) => res.json())
-    .then((data) => data.data as InitData)
-    .then((data) => {
-      console.log({ data });
-      console.log({ strat: data.strat });
-      strat = normelizeNumbers(data.strat);
-      firstMsg = data.first.map((fm) => fm.message);
-      secondMessage = data.second.map((sm) => sm.message);
-    });
-};
-const getNewLeads = () =>
-  fetch(`${baseUrl}type=get_rows`)
-    .then((res) => res.json())
-    .then((data: { status: 1; data: string } | { status: 2; data: { name: string; phone: string }[] }) => {
-      if (data.status === 2) return data.data;
-      console.log(data.data);
-      return null;
-    });
-
-let inProgress = false;
-const delay = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
-
-const stateCode = "";
-
-const formatPhone = (num: string) => `${stateCode}${num}@c.us`;
 export const hash = [",", "!", "?", "=", "@", "#", "$", "/", ".", "+", "*", "&", "(", ")", "<", ">", "-", "_", "%", "`", "[", "]", "^"];
 
 export const createVarient = (msg: string) => {
@@ -92,14 +37,15 @@ export const createVarient = (msg: string) => {
 };
 
 // const socketsMap = new Map<string, WebSocket>();
-let sended: { number: string; name: string; stage: "first_sended" | "second_sended" | "new" }[] = [];
+export let sended: { number: string; name: string; stage: "first_sended" | "second_sended" | "new" }[] = [];
 type RecivedMessage = { type: "init" } | { type: "error"; data: string };
 type RecivedAction =
-  | { type: "send"; schema: "from_ui"; contacts: { name: string; number: string }[] }
-  | { type: "send" }
+  | { type: "send"; schema: "from_ui"; leads: Lead[]; messages: string[] }
+  | { type: "send"; schema: "listener" }
   | { type: "stop" };
 
-const sockets = new Map<string, WebSocket>();
+export const sockets = new Map<string, WebSocket>();
+export const strats = new Map<string, SendingStrategy>();
 wss.on("connection", function connection(ws, req) {
   const url = req?.url ?? "";
 
@@ -162,18 +108,13 @@ function handleClientConnection(id: string) {
   });
 
   client.on("qr", (qr) => {
-    // ws.emit("qr", JSON.stringify({ type: "qr", qr }));
     if (sockets.get(id)?.readyState === WebSocket.OPEN) {
       qrcode.generate(qr, { small: true }, (qc) => {
         console.log({ qr, qc });
         sockets.get(id)?.send(JSON.stringify({ type: "qr", qr }));
       });
       console.log("socket ready qr listener");
-
-      // qrSent = true;
     }
-
-    // ws?.emit("message", JSON.stringify({ type: "qr", qr }));
   });
   client.on("message", async (message) => {
     console.log("recived message: ", message.body);
@@ -185,96 +126,32 @@ function handleClientConnection(id: string) {
       blockedNumbers.push(number);
       await delay(Math.floor(Math.random() * strat.max_delay_second + strat.min_delay_second));
 
-      let selSecondMessage = secondMessage[Math.floor(Math.random() * secondMessage.length)];
       if (Math.random() > 0.5) {
-        client.sendMessage(number, editMessageVarient(selSecondMessage, lead.name, true));
+        client.sendMessage(number, messageParser(strat, secondMessage, lead.name));
       } else {
-        message.reply(editMessageVarient(selSecondMessage, lead.name, true));
+        message.reply(messageParser(strat, secondMessage, lead.name));
       }
     }
     console.log({ blockedNumbers, sended });
   });
 
-  handleActions(sockets?.get(id), client);
+  handleActions(sockets?.get(id), client, id);
   client.initialize();
 }
 
-function handleListener() {
-  getInitData().then(() => {
-    setInterval(async () => {
-      if (inProgress) {
-        console.log("sending in progress..");
-        return;
-      }
-      const newLeads = await getNewLeads();
-      if (newLeads) {
-        inProgress = true;
-        for (let i = 0; i < newLeads.length; i++) {
-          let lead = newLeads[i];
-          await delay(Math.floor(Math.random() * strat.min_delay_first + strat.min_delay_first));
-          let number = formatPhone(lead.phone);
-
-          client
-            .isRegisteredUser(number)
-            .then((isRegistered) => {
-              if (!isRegistered) {
-                logAction({ type: "not_registered", message: "client not reg", name: lead.name, number, updates: 1, status: "error" });
-              } else {
-                if (sended.map((s) => s.number).indexOf(number) !== -1) {
-                  console.log("recived first message allreedy !!", { number });
-                  return;
-                }
-                sended.push({ number, name: lead.name, stage: "first_sended" });
-                console.log(number);
-                let selFirstMessage = firstMsg[Math.floor(Math.random() * firstMsg.length)];
-                client
-                  .sendMessage(number, editMessageVarient(selFirstMessage, lead.name, true))
-                  .then(() => {
-                    logAction({
-                      type: "first_message",
-                      message: selFirstMessage.slice(0, 12),
-                      name: lead.name,
-                      number,
-                      updates: 1,
-                      status: "ok",
-                    });
-                  })
-                  .catch((err) =>
-                    logAction({
-                      type: "first_message",
-                      message: JSON.stringify(err).slice(0, 32),
-                      name: lead.name,
-                      number,
-                      updates: 1,
-                      status: "error",
-                    })
-                  );
-              }
-            })
-            .catch((err) => {
-              logAction({
-                type: "regi_error",
-                message: JSON.stringify(err).slice(0, 32),
-                name: lead.name,
-                number,
-                updates: 1,
-                status: "error",
-              });
-            });
-        }
-        inProgress = false;
-      }
-    }, 12000);
-  });
-}
-function handleActions(ws: WebSocket | undefined, client: Client) {
+function handleActions(ws: WebSocket | undefined, client: Client, id: string) {
   if (!ws) return;
   ws.on("action", (data) => {
-    const rm: RecivedMessage = JSON.parse(data);
+    const rm: RecivedAction = JSON.parse(data);
 
     switch (rm.type) {
       case "send": {
         if (rm.schema === "from_ui") {
+          handleUiContacts(rm.leads, rm.messages, client, id);
+          break;
+        }
+        if (rm.schema === "listener") {
+          handleListener(client, id);
           break;
         }
       }

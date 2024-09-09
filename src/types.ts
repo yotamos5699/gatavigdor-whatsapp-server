@@ -12,7 +12,10 @@ export type SendingStrategy = {
   min_delay_second: number;
   max_delay_second: number;
   conntacts: "listener" | "from_ui";
+  randomize_empty_rows: boolean;
   randomize_messages: boolean;
   randimize_characters: boolean;
   use: boolean;
 };
+
+export type Lead = { name: string; phone: string };
