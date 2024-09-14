@@ -3,15 +3,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.logAction = void 0;
 const handlers_1 = require("./handlers");
 const log_fallback_url = "https://script.google.com/macros/s/AKfycbylQUU_1mh1ehP0fSRhmW364TQL5Q5eIX8aSnH3F5R-hls9hFWdVMF4sFls6zovfpFx/exec";
-const logAction = ({ type, lead, msg, owner }) => {
-    var _a;
-    console.log(`sending log: ${type}`);
-    const prem = (_a = handlers_1.requestsCache.get(owner)) === null || _a === void 0 ? void 0 : _a.premissions;
+const logAction = ({ type, lead, msg, owner, actionId, }) => {
+    var _a, _b, _c;
+    const prem = (_a = handlers_1.requestsCache.get(actionId)) === null || _a === void 0 ? void 0 : _a.premissions;
+    console.log("IN LOGING:", { prem });
+    const full_url = `${(_b = prem === null || prem === void 0 ? void 0 : prem.log_url) !== null && _b !== void 0 ? _b : ""}`;
+    `${(_c = prem === null || prem === void 0 ? void 0 : prem.log_url) !== null && _c !== void 0 ? _c : log_fallback_url}?type=log&row=${JSON.stringify(loadLogData("no_loging_url", lead, owner, msg))}&updates=${1}&owner=${owner}`;
+    console.log(`sending log: ${type} url: ${full_url}`);
     if (!(prem === null || prem === void 0 ? void 0 : prem.log_url)) {
-        fetch(`${log_fallback_url}?type=log&row=${encodeURIComponent(JSON.stringify(loadLogData("no_loging_url", lead, owner, msg)))}&updates=${1}&owner=${owner}`);
+        fetch(`${full_url}?type=log&row=${JSON.stringify(loadLogData("no_loging_url", lead, owner, msg))}&updates=${1}&owner=${owner}`);
         return;
     }
-    fetch(`${prem === null || prem === void 0 ? void 0 : prem.log_url}?type=log&row=${encodeURIComponent(JSON.stringify(loadLogData(type, lead, owner, msg)))}&updates=${1}`);
+    fetch(`${full_url}?type=log&row=${JSON.stringify(loadLogData(type, lead, owner, msg))}&updates=${1}&owner=${owner}`);
 };
 exports.logAction = logAction;
 function loadLogData(type, lead, owner, msg) {

@@ -51,7 +51,7 @@ export async function handleSendMessages(owner: string, rm: SocketMessage) {
     return sendLeadsMessages({
       leads: rm.leads,
       owner,
-      actionTd: rm.actionId,
+      actionId: rm.actionId,
       messages,
     });
   else if (rm.schema === "listener") {
@@ -61,34 +61,36 @@ export async function handleSendMessages(owner: string, rm: SocketMessage) {
         sendLeadsMessages({
           leads,
           owner,
-          actionTd: rm.actionId,
+
+          actionId: rm.actionId,
           messages,
         });
       }
     }, 12000);
   }
 }
+
 let blockedNumbers: string[] = ["393889212914@c.us", "393338594778@c.us", "393335438809@c.us", "393278696422@c.us"];
 let actionCounter = 0;
 
 const sendLeadsMessages = async ({
   leads,
-  actionTd,
+  actionId,
   owner,
   messages,
 }: {
   leads: Lead[];
-  actionTd: string;
+  actionId: string;
   owner: string;
   messages: string[];
 }) => {
   const client = sockets.get(owner)?.client;
-  const data = requestsCache.get(actionTd);
+  const data = requestsCache.get(actionId);
   // console.log("send leads messagse", { data, client });
   if (!data || !client) return;
   const { premissions, strat, secondList } = data;
 
-  listenToLeadResponse(owner, client, strat, secondList);
+  listenToLeadResponse(owner, actionId, client, strat, secondList);
   for (let i = 0; i < leads.length; i++) {
     console.log(`sending ${i} name:${leads[i]?.name} phone:${leads[i].phone} `);
     let lead = leads[i];
@@ -102,72 +104,68 @@ const sendLeadsMessages = async ({
     }
 
     console.log({ lead, number });
-    // const isRegisteredNoAddedChars = await client.isRegisteredUser(lead.phone);
-    const registeredUser = await client.isRegisteredUser(number);
-    if (!registeredUser) {
-      // registerUserApi(number)
-      continue;
-    }
-    await client
-      .isRegisteredUser(number)
-      .then((isRegistered) => {
-        console.log("is registerd !");
-        if (!isRegistered) {
-          logAction({
-            type: "not_registered",
-            lead,
-            owner,
-          });
-        } else {
-          if (sended.map((s) => s.number).indexOf(number) !== -1) {
-            logAction({
-              type: "sended_already_block",
-              lead,
-              owner,
-              msg: "recived first message allreedy !!",
-            });
 
-            return;
-          }
-          sended.push({ number, name: lead.name, stage: "first_sended" });
-          console.log(number);
-          let selFirstMessage = messageParser(strat, messages, lead.name);
-          console.log({ selFirstMessage });
-          client
-            .sendMessage(number, selFirstMessage)
-            .then(() => {
-              logAction({
-                type: "first_msg_ok",
-                lead,
-                owner,
-                msg: selFirstMessage.slice(0, 12),
-              });
-            })
-            .catch((err) =>
-              logAction({
-                type: "first_msg_error",
-                lead,
-                owner,
-                msg: JSON.stringify(err).slice(0, 32),
-              })
-            );
-        }
-      })
-      .catch((err) => {
-        console.log("error:", { err });
-        logAction({
-          type: "regi_error",
+    // const isRegisteredNoAddedChars = await client.isRegisteredUser(lead.phone);
+    try {
+      // const registeredUser = await client.isRegisteredUser(number);
+      // if (!registeredUser)
+      // return logAction({
+      //   type: "not_registered",
+      //   lead,
+      //   owner,
+      // });
+
+      if (sended.map((s) => s.number).indexOf(number) !== -1)
+        return logAction({
+          type: "sended_already_block",
           lead,
           owner,
-          msg: JSON.stringify(err).slice(0, 32),
+          actionId,
+          msg: "recived first message allreedy !!",
         });
-      })
-      .finally(() => incrementProcess(owner, "msg"));
-  }
-  decrementProcess(owner, "req");
-};
 
-const listenToLeadResponse = (owner: string, client: Client, strat: SendingStrategy, list: string[]) => {
+      sended.push({ number, name: lead.name, stage: "first_sended" });
+      console.log(number);
+      let selFirstMessage = messageParser(strat, messages, lead.name);
+      console.log({ selFirstMessage });
+      if (!number || !selFirstMessage) {
+        console.log("error: ", { number, selFirstMessage });
+      }
+      client
+        .sendMessage(number, selFirstMessage)
+        .then(() => {
+          logAction({
+            type: "first_msg_ok",
+            lead,
+            owner,
+            actionId,
+            msg: selFirstMessage.slice(0, 12),
+          });
+        })
+        .catch((err) =>
+          logAction({
+            type: "first_msg_error",
+            lead,
+            owner,
+            actionId,
+            msg: JSON.stringify(err).slice(0, 32),
+          })
+        );
+    } catch (err) {
+      console.log("error:", { err });
+      logAction({
+        type: "regi_error",
+        lead,
+        owner,
+        actionId,
+        msg: JSON.stringify(err).slice(0, 32),
+      });
+    }
+
+    decrementProcess(owner, "req");
+  }
+};
+const listenToLeadResponse = (owner: string, actionId: string, client: Client, strat: SendingStrategy, list: string[]) => {
   client.on("message", async (message) => {
     // if (!rc) return console.log("no request cache", { rc });
     // const { strat, secondList } = rc;
@@ -177,6 +175,8 @@ const listenToLeadResponse = (owner: string, client: Client, strat: SendingStrat
     logAction({
       type: "replaying_message",
       lead: { name: lead.name, phone: number },
+
+      actionId,
       owner,
     });
     if (lead && blockedNumbers.indexOf(number) === -1) {

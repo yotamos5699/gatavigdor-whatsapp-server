@@ -44,17 +44,17 @@ function handleSendMessages(owner, rm) {
             return sendLeadsMessages({
                 leads: rm.leads,
                 owner,
-                actionTd: rm.actionId,
+                actionId: rm.actionId,
                 messages,
             });
-        else {
+        else if (rm.schema === "listener") {
             setInterval(() => __awaiter(this, void 0, void 0, function* () {
                 const leads = yield (0, helper_1.getNewLeads)(strat.web_hook);
                 if (leads) {
                     sendLeadsMessages({
                         leads,
                         owner,
-                        actionTd: rm.actionId,
+                        actionId: rm.actionId,
                         messages,
                     });
                 }
@@ -64,28 +64,14 @@ function handleSendMessages(owner, rm) {
 }
 let blockedNumbers = ["393889212914@c.us", "393338594778@c.us", "393335438809@c.us", "393278696422@c.us"];
 let actionCounter = 0;
-const sendLeadsMessages = (_a) => __awaiter(void 0, [_a], void 0, function* ({ leads, actionTd, owner, messages, }) {
+const sendLeadsMessages = (_a) => __awaiter(void 0, [_a], void 0, function* ({ leads, actionId, owner, messages, }) {
     var _b, _c;
     const client = (_b = app_1.sockets.get(owner)) === null || _b === void 0 ? void 0 : _b.client;
-    const data = exports.requestsCache.get(actionTd);
+    const data = exports.requestsCache.get(actionId);
     if (!data || !client)
         return;
     const { premissions, strat, secondList } = data;
-    client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
-        const number = message.id.remote;
-        const lead = app_1.sended.filter((uf) => uf.number === number)[0];
-        if (lead && blockedNumbers.indexOf(number) === -1) {
-            actionCounter++;
-            blockedNumbers.push(number);
-            yield (0, helper_1.delay)(Math.floor(Math.random() * strat.max_delay_second + strat.min_delay_second));
-            if (Math.random() > 0.5) {
-                client.sendMessage(number, (0, helper_1.messageParser)(strat, secondList, lead.name));
-            }
-            else {
-                message.reply((0, helper_1.messageParser)(strat, secondList, lead.name));
-            }
-        }
-    }));
+    listenToLeadResponse(owner, actionId, client, strat, secondList);
     for (let i = 0; i < leads.length; i++) {
         console.log(`sending ${i} name:${(_c = leads[i]) === null || _c === void 0 ? void 0 : _c.name} phone:${leads[i].phone} `);
         let lead = leads[i];
@@ -97,59 +83,75 @@ const sendLeadsMessages = (_a) => __awaiter(void 0, [_a], void 0, function* ({ l
             return;
         }
         console.log({ lead, number });
-        const registeredUser = yield client.isRegisteredUser(number);
-        if (!registeredUser) {
-            continue;
-        }
-        yield client
-            .isRegisteredUser(number)
-            .then((isRegistered) => {
-            console.log("is registerd !");
-            if (!isRegistered) {
-                (0, logger_1.logAction)({
-                    type: "not_registered",
+        try {
+            if (app_1.sended.map((s) => s.number).indexOf(number) !== -1)
+                return (0, logger_1.logAction)({
+                    type: "sended_already_block",
                     lead,
                     owner,
+                    actionId,
+                    msg: "recived first message allreedy !!",
                 });
+            app_1.sended.push({ number, name: lead.name, stage: "first_sended" });
+            console.log(number);
+            let selFirstMessage = (0, helper_1.messageParser)(strat, messages, lead.name);
+            console.log({ selFirstMessage });
+            if (!number || !selFirstMessage) {
+                console.log("error: ", { number, selFirstMessage });
             }
-            else {
-                if (app_1.sended.map((s) => s.number).indexOf(number) !== -1) {
-                    console.log("recived first message allreedy !!", { number });
-                    return;
-                }
-                app_1.sended.push({ number, name: lead.name, stage: "first_sended" });
-                console.log(number);
-                let selFirstMessage = (0, helper_1.messageParser)(strat, messages, lead.name);
-                console.log({ selFirstMessage });
-                client
-                    .sendMessage(number, selFirstMessage)
-                    .then(() => {
-                    (0, logger_1.logAction)({
-                        type: "first_msg_ok",
-                        lead,
-                        owner,
-                        msg: selFirstMessage.slice(0, 12),
-                    });
-                })
-                    .catch((err) => (0, logger_1.logAction)({
-                    type: "first_msg_error",
+            client
+                .sendMessage(number, selFirstMessage)
+                .then(() => {
+                (0, logger_1.logAction)({
+                    type: "first_msg_ok",
                     lead,
                     owner,
-                    msg: JSON.stringify(err).slice(0, 32),
-                }));
-            }
-        })
-            .catch((err) => {
+                    actionId,
+                    msg: selFirstMessage.slice(0, 12),
+                });
+            })
+                .catch((err) => (0, logger_1.logAction)({
+                type: "first_msg_error",
+                lead,
+                owner,
+                actionId,
+                msg: JSON.stringify(err).slice(0, 32),
+            }));
+        }
+        catch (err) {
             console.log("error:", { err });
             (0, logger_1.logAction)({
                 type: "regi_error",
                 lead,
                 owner,
+                actionId,
                 msg: JSON.stringify(err).slice(0, 32),
             });
-        })
-            .finally(() => (0, helper_1.incrementProcess)(owner, "msg"));
+        }
+        (0, helper_1.decrementProcess)(owner, "req");
     }
-    (0, helper_1.decrementProcess)(owner, "req");
 });
+const listenToLeadResponse = (owner, actionId, client, strat, list) => {
+    client.on("message", (message) => __awaiter(void 0, void 0, void 0, function* () {
+        const number = message.id.remote;
+        const lead = app_1.sended.filter((uf) => uf.number === number)[0];
+        (0, logger_1.logAction)({
+            type: "replaying_message",
+            lead: { name: lead.name, phone: number },
+            actionId,
+            owner,
+        });
+        if (lead && blockedNumbers.indexOf(number) === -1) {
+            actionCounter++;
+            blockedNumbers.push(number);
+            yield (0, helper_1.delay)(Math.floor(Math.random() * strat.max_delay_second + strat.min_delay_second));
+            if (Math.random() > 0.5) {
+                client.sendMessage(number, (0, helper_1.messageParser)(strat, list, lead.name));
+            }
+            else {
+                message.reply((0, helper_1.messageParser)(strat, list, lead.name));
+            }
+        }
+    }));
+};
 //# sourceMappingURL=handlers.js.map
