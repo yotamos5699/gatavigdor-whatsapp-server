@@ -9,26 +9,49 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.messageParser = exports.getRandomStrFromList = exports.getRandomMsgqFromList = exports.editMessageVarient = exports.randomizeMessageRowGaps = exports.normelizeNumbers = exports.delay = exports.formatPhone = exports.getNewLeads = exports.processesOverLoad = exports.decrementProcess = exports.incrementProcess = void 0;
+exports.messageParser = exports.getRandomStrFromList = exports.getRandomMsgqFromList = exports.editMessageVarient = exports.randomizeMessageRowGaps = exports.normelizeNumbers = exports.delay = exports.formatPhone = exports.getNewLeads = exports.sendedOverLoad = exports.processesOverLoad = exports.decrementProcess = exports.incrementProcess = void 0;
 const handlers_1 = require("./handlers");
 const hash = [",", "!", "?", "=", "@", "#", "$", "/", ".", "+", "*", "&", "(", ")", "<", ">", "-", "_", "%", "`", "[", "]", "^"];
-const incrementProcess = (owner) => {
+const incrementProcess = (owner, type) => {
     const pc = handlers_1.processesCache.get(owner);
-    handlers_1.processesCache.set(owner, pc ? pc + 1 : 0);
+    if (!pc)
+        return handlers_1.processesCache.set(owner, { requests: 0, sended: 0 });
+    if (type === "msg")
+        return handlers_1.processesCache.set(owner, Object.assign(Object.assign({}, pc), { sended: pc.sended + 1 }));
+    else if (type === "req")
+        return handlers_1.processesCache.set(owner, Object.assign(Object.assign({}, pc), { requests: pc.requests + 1 }));
+    return;
 };
 exports.incrementProcess = incrementProcess;
-const decrementProcess = (owner) => {
+const decrementProcess = (owner, type) => {
     const pc = handlers_1.processesCache.get(owner);
-    pc && handlers_1.processesCache.set(owner, pc - 1);
+    if (!pc)
+        return;
+    if (type === "msg")
+        return handlers_1.processesCache.set(owner, Object.assign(Object.assign({}, pc), { sended: pc.sended - 1 }));
+    else if (type === "req")
+        return handlers_1.processesCache.set(owner, Object.assign(Object.assign({}, pc), { requests: pc.requests - 1 }));
+    return;
 };
 exports.decrementProcess = decrementProcess;
 const processesOverLoad = (owner, prems) => {
     const pc = handlers_1.processesCache.get(owner);
-    if (pc && pc >= prems.max_requests)
+    if (pc && pc.requests >= prems.max_requests) {
+        console.log("to much requests open .", { owner, prems });
         return true;
+    }
     return false;
 };
 exports.processesOverLoad = processesOverLoad;
+const sendedOverLoad = (owner, prems) => {
+    const pc = handlers_1.processesCache.get(owner);
+    if (pc && pc.sended >= prems.hard_cap) {
+        console.error("exided max nuber of messages allowed: ..", { owner, prems });
+        return true;
+    }
+    return false;
+};
+exports.sendedOverLoad = sendedOverLoad;
 const getNewLeads = (url) => __awaiter(void 0, void 0, void 0, function* () {
     return fetch(`${url}?type=get_rows`)
         .then((res) => res.json())

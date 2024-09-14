@@ -8,35 +8,55 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sockets = exports.sended = void 0;
-const whatsapp_web_js_1 = require("whatsapp-web.js");
-const qrcode_terminal_1 = __importDefault(require("qrcode-terminal"));
 const url_1 = require("url");
 const ws_1 = require("ws");
-const helper_1 = require("./helper");
+const client_1 = require("./client");
 const handlers_1 = require("./handlers");
 const wss = new ws_1.WebSocketServer({ port: 8080 });
-let blockedNumbers = ["393889212914@c.us", "393338594778@c.us", "393335438809@c.us", "393278696422@c.us"];
-let actionCounter = 0;
+const isNotInitialized = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const s = exports.sockets === null || exports.sockets === void 0 ? void 0 : exports.sockets.get(id);
+    console.log({ s });
+    if (!s)
+        return true;
+    try {
+        const state = yield ((_a = s === null || s === void 0 ? void 0 : s.client) === null || _a === void 0 ? void 0 : _a.getState());
+        console.log("prev connection state: ", { state });
+        if (state !== "CONNECTED" && state !== "OPENING")
+            return true;
+        return false;
+    }
+    catch (_b) {
+        console.log("error retriving state");
+        return true;
+    }
+});
+const updateClientReady = (id) => {
+    const s = exports.sockets.get(id);
+    if (!s)
+        return;
+    s.ws.send(JSON.stringify({ type: "ready" }));
+};
 exports.sended = [];
 exports.sockets = new Map();
 wss.on("connection", function connection(ws, req) {
     var _a;
+    console.log("client connected .. ");
     const url = (_a = req === null || req === void 0 ? void 0 : req.url) !== null && _a !== void 0 ? _a : "";
     const { query: { id }, } = (0, url_1.parse)(url, true);
-    ws.on("open", () => console.log("client connected .. "));
     ws.on("error", console.error);
     ws.on("message", function message(data) {
-        var _a;
         const msg = JSON.parse(data.toString());
         switch (msg.type) {
             case "init": {
-                const client = handleClientConnection((_a = id) !== null && _a !== void 0 ? _a : "");
-                id && exports.sockets.set(id, { ws, client });
+                isNotInitialized(id).then((needInit) => {
+                    var _a;
+                    if (needInit)
+                        return (0, client_1.handleClientConnection)((_a = id) !== null && _a !== void 0 ? _a : "", ws);
+                    updateClientReady(id);
+                });
                 break;
             }
             case "action": {
@@ -44,7 +64,7 @@ wss.on("connection", function connection(ws, req) {
                 break;
             }
         }
-        console.log("received: %s", data);
+        console.log("received: ");
     });
     ws.send(JSON.stringify({ data: "something" }));
     ws.onclose = () => {
@@ -55,54 +75,19 @@ wss.on("connection", function connection(ws, req) {
         console.error("WebSocket error:", event);
     };
 });
-function handleClientConnection(id) {
-    const client = new whatsapp_web_js_1.Client({
-        authStrategy: new whatsapp_web_js_1.LocalAuth({
-            clientId: id,
-        }),
-    });
-    client.on("ready", () => {
-        var _a;
-        (_a = exports.sockets.get(id)) === null || _a === void 0 ? void 0 : _a.ws.send(JSON.stringify({ type: "ready" }));
-    });
-    client.on("qr", (qr) => {
-        var _a;
-        if (((_a = exports.sockets.get(id)) === null || _a === void 0 ? void 0 : _a.ws.readyState) === ws_1.WebSocket.OPEN) {
-            qrcode_terminal_1.default.generate(qr, { small: true }, () => {
-                var _a;
-                (_a = exports.sockets.get(id)) === null || _a === void 0 ? void 0 : _a.ws.send(JSON.stringify({ type: "qr", qr }));
-            });
-        }
-    });
-    client.on("message", (message) => __awaiter(this, void 0, void 0, function* () {
-        const rc = handlers_1.requestsCache.get(id);
-        if (!rc)
-            return;
-        const { strat, secondList } = rc;
-        const number = message.id.remote;
-        const lead = exports.sended.filter((uf) => uf.number === number)[0];
-        if (lead && blockedNumbers.indexOf(number) === -1) {
-            actionCounter++;
-            blockedNumbers.push(number);
-            yield (0, helper_1.delay)(Math.floor(Math.random() * strat.max_delay_second + strat.min_delay_second));
-            if (Math.random() > 0.5) {
-                client.sendMessage(number, (0, helper_1.messageParser)(strat, secondList, lead.name));
-            }
-            else {
-                message.reply((0, helper_1.messageParser)(strat, secondList, lead.name));
+function handleActions(owner, sm) {
+    try {
+        console.log("in handle actions...");
+        switch (sm.type) {
+            case "send": {
+                console.log({ owner, sm });
+                (0, handlers_1.handleSendMessages)(owner, sm);
+                break;
             }
         }
-    }));
-    client.initialize();
-    return client;
-}
-function handleActions(id, sm) {
-    console.log("in handle actions...", { id, sm });
-    switch (sm.type) {
-        case "send": {
-            console.log({ id, sm });
-            break;
-        }
+    }
+    catch (handleActions_ERROR) {
+        console.log({ handleActions_ERROR });
     }
 }
 //# sourceMappingURL=app.js.map

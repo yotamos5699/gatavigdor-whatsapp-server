@@ -4,6 +4,7 @@ import { Lead, LogType } from "./types";
 const log_fallback_url = "https://script.google.com/macros/s/AKfycbylQUU_1mh1ehP0fSRhmW364TQL5Q5eIX8aSnH3F5R-hls9hFWdVMF4sFls6zovfpFx/exec";
 
 export const logAction = ({ type, lead, msg, owner }: { type: LogType; lead: Lead; msg?: string; owner: string }) => {
+  console.log(`sending log: ${type}`);
   const prem = requestsCache.get(owner)?.premissions;
   if (!prem?.log_url) {
     fetch(

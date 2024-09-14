@@ -1,10 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.logAction = void 0;
-const baseUrl = "https://script.google.com/macros/s/AKfycbylQUU_1mh1ehP0fSRhmW364TQL5Q5eIX8aSnH3F5R-hls9hFWdVMF4sFls6zovfpFx/exec?";
-const baseUrl2 = "https://script.google.com/macros/s/AKfycbx-6JLVMVuWote6N0vtiCLl_zgtbdDGfP6W--KoLcT8X5w6dr69-5BUEAQUaMcl1qUo/exec?";
+const handlers_1 = require("./handlers");
+const log_fallback_url = "https://script.google.com/macros/s/AKfycbylQUU_1mh1ehP0fSRhmW364TQL5Q5eIX8aSnH3F5R-hls9hFWdVMF4sFls6zovfpFx/exec";
 const logAction = ({ type, lead, msg, owner }) => {
-    [baseUrl, baseUrl2].forEach((url) => fetch(`${url}type=log&row=${encodeURIComponent(JSON.stringify(loadLogData(type, lead, owner, msg)))}&updates=${1}`));
+    var _a;
+    console.log(`sending log: ${type}`);
+    const prem = (_a = handlers_1.requestsCache.get(owner)) === null || _a === void 0 ? void 0 : _a.premissions;
+    if (!(prem === null || prem === void 0 ? void 0 : prem.log_url)) {
+        fetch(`${log_fallback_url}?type=log&row=${encodeURIComponent(JSON.stringify(loadLogData("no_loging_url", lead, owner, msg)))}&updates=${1}&owner=${owner}`);
+        return;
+    }
+    fetch(`${prem === null || prem === void 0 ? void 0 : prem.log_url}?type=log&row=${encodeURIComponent(JSON.stringify(loadLogData(type, lead, owner, msg)))}&updates=${1}`);
 };
 exports.logAction = logAction;
 function loadLogData(type, lead, owner, msg) {

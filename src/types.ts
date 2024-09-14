@@ -6,7 +6,9 @@ export type LogType =
   | "response"
   | "not_registered"
   | "regi_error"
-  | "no_loging_url";
+  | "no_loging_url"
+  | "sended_already_block"
+  | "replaying_message";
 export type MsgQ = { id: string; owner: string; pos: "first" | "second"; message: string; use: boolean };
 
 export type InitData = { strat: SendingStrategy; first: MsgQ[]; second: MsgQ[]; premissions: Premmision_ };

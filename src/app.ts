@@ -3,8 +3,30 @@ import { parse } from "url";
 import { WebSocketServer, WebSocket } from "ws";
 import { SocketMessage } from "./types";
 import { handleClientConnection } from "./client";
+import { handleSendMessages } from "./handlers";
 
 const wss = new WebSocketServer({ port: 8080 });
+
+const isNotInitialized = async (id: string) => {
+  const s = sockets?.get(id);
+  console.log({ s });
+  if (!s) return true;
+  try {
+    const state = await s?.client?.getState();
+    console.log("prev connection state: ", { state });
+    if (state !== "CONNECTED" && state !== "OPENING") return true;
+    return false;
+  } catch {
+    console.log("error retriving state");
+    return true;
+  }
+};
+
+const updateClientReady = (id: string) => {
+  const s = sockets.get(id);
+  if (!s) return;
+  s.ws.send(JSON.stringify({ type: "ready" }));
+};
 
 export let sended: { number: string; name: string; stage: "first_sended" | "second_sended" | "new" }[] = [];
 type RecivedMessage = { type: "init" } | { type: "error"; data: string } | { type: "action"; data: SocketMessage };
@@ -12,21 +34,24 @@ type RecivedMessage = { type: "init" } | { type: "error"; data: string } | { typ
 export const sockets = new Map<string, { ws: WebSocket; client: Client }>();
 
 wss.on("connection", function connection(ws, req) {
+  console.log("client connected .. ");
   const url = req?.url ?? "";
 
   const {
     query: { id },
   } = parse(url, true);
 
-  ws.on("open", () => console.log("client connected .. "));
+  // ws.on("open", () => );
   ws.on("error", console.error);
 
   ws.on("message", function message(data) {
     const msg = JSON.parse(data.toString()) as RecivedMessage;
     switch (msg.type) {
       case "init": {
-        const client = handleClientConnection((id as string) ?? "");
-        id && sockets.set(id as string, { ws, client });
+        isNotInitialized(id as string).then((needInit) => {
+          if (needInit) return handleClientConnection((id as string) ?? "", ws);
+          updateClientReady(id as string);
+        });
         break;
       }
       case "action": {
@@ -35,7 +60,7 @@ wss.on("connection", function connection(ws, req) {
       }
     }
 
-    console.log("received: %s", data);
+    console.log("received: ");
   });
 
   ws.send(JSON.stringify({ data: "something" }));
@@ -50,14 +75,14 @@ wss.on("connection", function connection(ws, req) {
   };
 });
 
-function handleActions(id: string, sm: SocketMessage) {
+function handleActions(owner: string, sm: SocketMessage) {
   try {
     //ssss
-    console.log("in handle actions...", { id, sm });
+    console.log("in handle actions...");
     switch (sm.type) {
       case "send": {
-        console.log({ id, sm });
-
+        console.log({ owner, sm });
+        handleSendMessages(owner, sm);
         break;
       }
     }
