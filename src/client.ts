@@ -1,88 +1,51 @@
-// import { Socket } from "socket.io";
+import { Client, LocalAuth } from "whatsapp-web.js";
+import { sockets, sended } from "./app";
+import { requestsCache } from "./handlers";
+import qrcode from "qrcode-terminal";
+import { delay, messageParser } from "./helper";
 
-// import {
-//   Client,
-//   // RemoteAuth,
-//   LocalAuth,
-//   Store,
-// } from "whatsapp-web.js";
-// // import { openMessagesEvent } from "./messageSender";
-// import { Io_ } from "./app";
+let blockedNumbers: string[] = ["393889212914@c.us", "393338594778@c.us", "393335438809@c.us", "393278696422@c.us"];
+let actionCounter = 0;
 
-// type Mennager = {
-//   number: string;
-//   job: "admin" | "mennager";
-// };
+export function handleClientConnection(id: string) {
+  const client = new Client({
+    authStrategy: new LocalAuth({
+      clientId: id,
+    }),
+  });
 
-// export const format_num = (num: string) => `${num}@c.us`;
-// export class W_a_Client {
-//   client: Client;
-//   store: Store;
-//   // socket: Socket;
-//   id: string;
-//   constructor(store: Store, id: string) {
-//     this.client = new Client({
-//       puppeteer: { headless: true },
-//       authStrategy: new LocalAuth({
-//         clientId: id,
-//         //  store: store,
-//         // backupSyncIntervalMs: 120000
-//       }),
-//     });
-//     this.store = store;
-//     this.id = id;
-//   }
+  client.on("ready", () => {
+    sockets.get(id)?.ws.send(JSON.stringify({ type: "ready" }));
+  });
 
-//   sendToMennagers(messages: string[], mennagers: Mennager[]) {
-//     mennagers.forEach((mennager, i) => this.client.sendMessage(format_num(mennager.number), messages[i]));
-//   }
-//   async state() {
-//     return await this.client.getState();
-//   }
-//   getClient() {
-//     return this.client;
-//   }
+  client.on("qr", (qr) => {
+    if (sockets.get(id)?.ws.readyState === WebSocket.OPEN) {
+      qrcode.generate(qr, { small: true }, () => {
+        sockets.get(id)?.ws.send(JSON.stringify({ type: "qr", qr }));
+      });
+    }
+  });
+  client.on("message", async (message) => {
+    const rc = requestsCache.get(id);
 
-//   async destroy(clients: Map<string, W_a_Client>, socket: Socket) {
-//     socket.disconnect()._error((err: any) => console.log("disconnect:", { err }));
-//     this.client.destroy().catch((err: any) => console.log("destroy:", { err }));
+    if (!rc) return;
+    const { strat, secondList } = rc;
 
-//     console.log("disconnected:", { number: this.id });
-//     clients.delete(this.id);
-//     console.log("removing number from list: ", { number: this.id }, clients.entries.length);
-//   }
-//   listen(io: Io_) {
-//     this.client.on("qr", (qr) => {
-//       console.log("sending qr to client");
-//       io.to(this.id).emit("qr", qr);
-//     });
+    const number = message.id.remote;
+    const lead = sended.filter((uf) => uf.number === number)[0];
+    if (lead && blockedNumbers.indexOf(number) === -1) {
+      actionCounter++;
+      blockedNumbers.push(number);
+      await delay(Math.floor(Math.random() * strat.max_delay_second + strat.min_delay_second));
 
-//     this.client.on("ready", () => {
-//       console.log("client ready");
-//       io.to(this.id).emit("ready", true);
-//     });
+      if (Math.random() > 0.5) {
+        client.sendMessage(number, messageParser(strat, secondList, lead.name));
+      } else {
+        message.reply(messageParser(strat, secondList, lead.name));
+      }
+    }
+  });
 
-//     this.client
-//       .initialize()
-//       .then(() => console.log("client initialized"))
-//       .catch((err) => console.log("initialized error", { err }));
-//   }
-
-//   async stabelizeConnection(io: Io_) {
-//     console.log("client exists ");
-
-//     try {
-//       if (!this.store) return;
-//       const connected = await this.client.getState();
-//       console.log({ connected });
-//       if (connected === "CONNECTED") {
-//         console.log("client connected");
-//         io.to(this.id).emit("ready", true);
-//         return;
-//       } else if (connected) this.client.resetState();
-//     } catch (stabelize_error) {
-//       console.log({ stabelize_error });
-//     }
-//     this.listen(io);
-//   }
-// }
+  client.initialize();
+  return client;
+}
