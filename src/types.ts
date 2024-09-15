@@ -9,6 +9,16 @@ export type LogType =
   | "no_loging_url"
   | "sended_already_block"
   | "replaying_message";
+
+export type SendedMessage = {
+  id: string;
+  date: string;
+  phone: string;
+  owner: string;
+  actionId: string;
+  name: string;
+  stage?: "first_sended" | "second_sended" | "new";
+};
 export type MsgQ = { id: string; owner: string; pos: "first" | "second"; message: string; use: boolean };
 
 export type InitData = { strat: SendingStrategy; first: MsgQ[]; second: MsgQ[]; premissions: Premmision_ };
@@ -60,6 +70,7 @@ export type SendingStrategy = {
   randomize_empty_rows: boolean;
   randomize_messages: boolean;
   randimize_characters: boolean;
+  embedded_name: boolean;
   default: boolean;
   web_hook: string;
   use: boolean;

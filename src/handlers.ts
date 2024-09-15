@@ -10,9 +10,10 @@ import {
   sendedOverLoad,
 } from "./helper";
 import { Lead, Premmision_, SendingStrategy, SocketMessage } from "./types";
-import { sended, sockets } from "./app";
+import { sockets } from "./app";
 import { logAction } from "./logger";
 import { Client } from "whatsapp-web.js";
+import { getSendedByActionId, updateJsonFile } from "./db/filesHandler";
 
 // const URL_LISTS =
 //   "https://script.google.com/macros/s/AKfycbx-6JLVMVuWote6N0vtiCLl_zgtbdDGfP6W--KoLcT8X5w6dr69-5BUEAQUaMcl1qUo/exec?type=lists";
@@ -85,12 +86,13 @@ const sendLeadsMessages = async ({
   messages: string[];
 }) => {
   const client = sockets.get(owner)?.client;
-  const data = requestsCache.get(actionId);
+  const rc = requestsCache.get(actionId);
   // console.log("send leads messagse", { data, client });
-  if (!data || !client) return;
-  const { premissions, strat, secondList } = data;
+  if (!rc || !client) return;
+  const { premissions, strat, secondList } = rc;
 
   listenToLeadResponse(owner, actionId, client, strat, secondList);
+
   for (let i = 0; i < leads.length; i++) {
     console.log(`sending ${i} name:${leads[i]?.name} phone:${leads[i].phone} `);
     let lead = leads[i];
@@ -104,18 +106,12 @@ const sendLeadsMessages = async ({
     }
 
     console.log({ lead, number });
+    const { data, error } = await getSendedByActionId(actionId);
+    if (error) return console.log({ error });
+    const sended = data.filter((sm) => sm.phone);
 
-    // const isRegisteredNoAddedChars = await client.isRegisteredUser(lead.phone);
     try {
-      // const registeredUser = await client.isRegisteredUser(number);
-      // if (!registeredUser)
-      // return logAction({
-      //   type: "not_registered",
-      //   lead,
-      //   owner,
-      // });
-
-      if (sended.map((s) => s.number).indexOf(number) !== -1)
+      if (sended.map((s) => s.phone).indexOf(number) !== -1)
         return logAction({
           type: "sended_already_block",
           lead,
@@ -124,8 +120,19 @@ const sendLeadsMessages = async ({
           msg: "recived first message allreedy !!",
         });
 
-      sended.push({ number, name: lead.name, stage: "first_sended" });
-      console.log(number);
+      // sended.push({ number, name: lead.name, stage: "first_sended" });
+      // console.log(number);
+      updateJsonFile([
+        {
+          id: crypto.randomUUID().slice(0, 12),
+          date: new Date().toISOString(),
+          phone: number,
+          name: lead.name,
+          owner,
+          actionId,
+          stage: "first_sended",
+        },
+      ]);
       let selFirstMessage = messageParser(strat, messages, lead.name);
       console.log({ selFirstMessage });
       if (!number || !selFirstMessage) {
@@ -171,7 +178,10 @@ const listenToLeadResponse = (owner: string, actionId: string, client: Client, s
     // const { strat, secondList } = rc;
 
     const number = message.id.remote;
-    const lead = sended.filter((uf) => uf.number === number)[0];
+    const { data, error } = await getSendedByActionId(actionId);
+    if (error) return console.log({ error });
+    const lead = data.filter((uf) => uf.phone === number)[0];
+
     logAction({
       type: "replaying_message",
       lead: { name: lead.name, phone: number },

@@ -82,9 +82,9 @@ export const randomizeMessageRowGaps = (message: string) => {
   });
   return msg;
 };
-export const editMessageVarient = (msg: string, name: string | null, varchars: boolean) => {
+export const editMessageVarient = (msg: string, name: string | null, varchars: boolean, embedded_name: boolean) => {
   let newMsg = msg;
-  if (name) newMsg = msg.replace("NAME", name);
+  if (name && embedded_name) newMsg = msg.replace("NAME", name);
   if (varchars) newMsg = createVarient(newMsg);
 
   return newMsg;
@@ -96,7 +96,7 @@ export const getRandomStrFromList = (list: string[]) => list[Math.floor(Math.ran
 export const messageParser = (strat: SendingStrategy, messages: string[], name: string | null = null, pos?: number) => {
   console.log("message pos: ", pos);
   let newMsg = strat.randomize_messages ? getRandomStrFromList(messages) : messages[0];
-  if (strat.randimize_characters) newMsg = editMessageVarient(newMsg, name, true);
+  if (strat.randimize_characters) newMsg = editMessageVarient(newMsg, name, true, strat.embedded_name);
   if (strat.randomize_empty_rows) newMsg = randomizeMessageRowGaps(newMsg);
 
   return newMsg;

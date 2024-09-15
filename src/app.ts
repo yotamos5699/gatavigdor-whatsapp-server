@@ -28,7 +28,6 @@ const updateClientReady = (id: string) => {
   s.ws.send(JSON.stringify({ type: "ready" }));
 };
 
-export let sended: { number: string; name: string; stage: "first_sended" | "second_sended" | "new" }[] = [];
 type RecivedMessage = { type: "init" } | { type: "error"; data: string } | { type: "action"; data: SocketMessage };
 
 export const sockets = new Map<string, { ws: WebSocket; client: Client }>();
